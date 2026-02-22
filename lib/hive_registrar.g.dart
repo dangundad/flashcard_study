@@ -3,11 +3,19 @@
 // Check in to version control
 
 import 'package:hive_ce/hive_ce.dart';
+import 'package:flashcard_study/app/data/models/flash_card.dart';
+import 'package:flashcard_study/app/data/models/flash_deck.dart';
 
 extension HiveRegistrar on HiveInterface {
-  void registerAdapters() {}
+  void registerAdapters() {
+    registerAdapter(FlashCardAdapter());
+    registerAdapter(FlashDeckAdapter());
+  }
 }
 
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
-  void registerAdapters() {}
+  void registerAdapters() {
+    registerAdapter(FlashCardAdapter());
+    registerAdapter(FlashDeckAdapter());
+  }
 }

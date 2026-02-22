@@ -8,6 +8,8 @@
 
 import 'package:get/get.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:flashcard_study/app/data/models/flash_card.dart';
+import 'package:flashcard_study/app/data/models/flash_deck.dart';
 import 'package:flashcard_study/hive_registrar.g.dart';
 
 
@@ -17,13 +19,14 @@ class HiveService extends GetxService {
   // Box 이름 상수
   static const String SETTINGS_BOX = 'settings';
   static const String APP_DATA_BOX = 'app_data';
-  // ---- 앱별 Box 추가 ----
+  static const String DECKS_BOX = 'decks';
+  static const String CARDS_BOX = 'cards';
 
   // Box Getters
   Box get settingsBox => Hive.box(SETTINGS_BOX);
   Box get appDataBox => Hive.box(APP_DATA_BOX);
-  // ---- 앱별 Typed Box Getter 추가 ----
-  // Box<MyModel> get myModelBox => Hive.box<MyModel>(MY_MODEL_BOX);
+  Box<FlashDeck> get decksBox => Hive.box<FlashDeck>(DECKS_BOX);
+  Box<FlashCard> get cardsBox => Hive.box<FlashCard>(CARDS_BOX);
 
   /// Hive 초기화 (main.dart에서 await 호출)
   static Future<void> init() async {
@@ -33,8 +36,8 @@ class HiveService extends GetxService {
     await Future.wait([
       Hive.openBox(SETTINGS_BOX),
       Hive.openBox(APP_DATA_BOX),
-      // ---- 앱별 Box 추가 ----
-      // Hive.openBox<MyModel>(MY_MODEL_BOX),
+      Hive.openBox<FlashDeck>(DECKS_BOX),
+      Hive.openBox<FlashCard>(CARDS_BOX),
     ]);
 
     Get.log('Hive 초기화 완료');
