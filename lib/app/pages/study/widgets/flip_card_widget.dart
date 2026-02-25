@@ -120,13 +120,30 @@ class _CardFace extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            Color.lerp(color, Colors.black, 0.08) ?? color,
+          ],
+        ),
         borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: textColor.withValues(alpha: 0.14),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: color.withValues(alpha: 0.35),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
