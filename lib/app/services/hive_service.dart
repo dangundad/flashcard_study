@@ -89,6 +89,42 @@ class HiveService extends GetxService {
   // }
 
   // ============================================
+  // 학습 세션 날짜 기록 (streak 계산용)
+  // ============================================
+  static const String _studyDatesKey = 'study_session_dates';
+
+  /// 오늘 학습 세션 날짜를 기록
+  Future<void> recordStudySession() async {
+    final today = _dateOnly(DateTime.now());
+    final raw = appDataBox.get(_studyDatesKey);
+    final List<String> dates = raw is List
+        ? List<String>.from(raw.map((e) => e.toString()))
+        : <String>[];
+    final todayStr = today.toIso8601String();
+    if (!dates.contains(todayStr)) {
+      dates.add(todayStr);
+      // Keep only last 365 days
+      if (dates.length > 365) {
+        dates.removeAt(0);
+      }
+      await appDataBox.put(_studyDatesKey, dates);
+    }
+  }
+
+  /// 학습 날짜 목록 반환 (정렬됨)
+  List<DateTime> getStudyDates() {
+    final raw = appDataBox.get(_studyDatesKey);
+    if (raw == null || raw is! List) return [];
+    return raw
+        .map((e) => DateTime.tryParse(e.toString()))
+        .whereType<DateTime>()
+        .toList()
+      ..sort();
+  }
+
+  DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+  // ============================================
   // 데이터 관리
   // ============================================
 

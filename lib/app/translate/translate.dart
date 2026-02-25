@@ -125,6 +125,19 @@ class Languages extends Translations {
       'result_accuracy': 'Accuracy',
       'back_to_deck': 'Back to Deck',
       'study_again': 'Study Again',
+
+      // Stats page
+      'stats_today': 'Today',
+      'stats_streak': 'Streak',
+      'stats_overall': 'Overall',
+      'stats_weekly_chart': 'Last 7 Days',
+      'stats_deck_mastery': 'Deck Mastery',
+      'stats_today_cards': 'Cards Studied',
+      'stats_mastery_rate': 'Mastery Rate',
+      'stats_current_streak': 'Current Streak',
+      'stats_longest_streak': 'Longest Streak',
+      'stats_total_decks': 'Decks',
+      'stats_total_cards': 'Total Cards',
     },
     'ko': {
       // 공통
@@ -233,6 +246,19 @@ class Languages extends Translations {
       'result_accuracy': '정확도',
       'back_to_deck': '덱으로',
       'study_again': '다시 학습',
+
+      // 통계 페이지
+      'stats_today': '오늘',
+      'stats_streak': '연속 학습',
+      'stats_overall': '전체 현황',
+      'stats_weekly_chart': '최근 7일',
+      'stats_deck_mastery': '덱별 숙련도',
+      'stats_today_cards': '오늘 학습 카드',
+      'stats_mastery_rate': '숙련도',
+      'stats_current_streak': '현재 연속',
+      'stats_longest_streak': '최장 연속',
+      'stats_total_decks': '덱 수',
+      'stats_total_cards': '전체 카드',
     },
   };
 }

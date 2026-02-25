@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:flashcard_study/app/controllers/study_controller.dart';
 import 'package:flashcard_study/app/pages/study/widgets/flip_card_widget.dart';
+import 'package:flashcard_study/app/widgets/confetti_overlay.dart';
 
 class StudyPage extends GetView<StudyController> {
   const StudyPage({super.key});
@@ -24,7 +26,21 @@ class StudyPage extends GetView<StudyController> {
       ),
       body: Obx(() {
         if (controller.isDone.value) {
-          return _SessionComplete(controller: controller, cs: cs);
+          return Stack(
+            children: [
+              _SessionComplete(controller: controller, cs: cs),
+              Obx(() {
+                if (!controller.showConfetti.value) {
+                  return const SizedBox.shrink();
+                }
+                return IgnorePointer(
+                  child: ConfettiOverlay(
+                    onComplete: () => controller.showConfetti.value = false,
+                  ),
+                );
+              }),
+            ],
+          );
         }
 
         final card = controller.currentCard;
@@ -259,9 +275,12 @@ class _SessionComplete extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              pct >= 80 ? '?럦' : '?뮞',
+              pct >= 80 ? '🎉' : '💪',
               style: TextStyle(fontSize: 64.sp),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: 0.3, duration: 400.ms, curve: Curves.easeOut),
             SizedBox(height: 12.h),
             Text(
               'session_done'.tr,
@@ -270,7 +289,10 @@ class _SessionComplete extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: cs.primary,
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 80.ms)
+                .slideY(begin: 0.3, duration: 400.ms, delay: 80.ms, curve: Curves.easeOut),
             SizedBox(height: 24.h),
             Container(
               width: double.infinity,
@@ -300,7 +322,10 @@ class _SessionComplete extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 160.ms)
+                .slideY(begin: 0.3, duration: 400.ms, delay: 160.ms, curve: Curves.easeOut),
             SizedBox(height: 28.h),
             Row(
               children: [
@@ -318,7 +343,10 @@ class _SessionComplete extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 240.ms)
+                .slideY(begin: 0.3, duration: 400.ms, delay: 240.ms, curve: Curves.easeOut),
           ],
         ),
       ),

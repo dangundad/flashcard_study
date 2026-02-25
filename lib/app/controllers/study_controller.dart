@@ -1,8 +1,10 @@
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:flashcard_study/app/admob/ads_interstitial.dart';
 import 'package:flashcard_study/app/controllers/deck_controller.dart';
 import 'package:flashcard_study/app/data/models/flash_card.dart';
+import 'package:flashcard_study/app/services/hive_service.dart';
 
 class StudyController extends GetxController {
   static StudyController get to => Get.find();
@@ -13,13 +15,13 @@ class StudyController extends GetxController {
   final sessionCorrect = 0.obs;
   final sessionTotal = 0.obs;
   final isDone = false.obs;
+  final showConfetti = false.obs;
 
   String _deckId = '';
 
   void startSession(String deckId) {
     _deckId = deckId;
     final due = DeckController.to.getDueCards(deckId);
-    // Shuffle for variety
     due.shuffle();
     cards.value = due;
     currentIndex.value = 0;
@@ -27,6 +29,7 @@ class StudyController extends GetxController {
     sessionCorrect.value = 0;
     sessionTotal.value = 0;
     isDone.value = false;
+    showConfetti.value = false;
   }
 
   FlashCard? get currentCard {
@@ -37,6 +40,7 @@ class StudyController extends GetxController {
   int get remaining => cards.length - currentIndex.value;
 
   void flip() {
+    HapticFeedback.selectionClick();
     isFlipped.value = !isFlipped.value;
   }
 
@@ -44,6 +48,12 @@ class StudyController extends GetxController {
   void rateCard(int quality) {
     final card = currentCard;
     if (card == null) return;
+
+    if (quality >= 2) {
+      HapticFeedback.lightImpact();
+    } else {
+      HapticFeedback.selectionClick();
+    }
 
     card.applyReview(quality);
     sessionTotal.value++;
@@ -53,7 +63,10 @@ class StudyController extends GetxController {
 
     final next = currentIndex.value + 1;
     if (next >= cards.length) {
+      HapticFeedback.mediumImpact();
       isDone.value = true;
+      showConfetti.value = true;
+      HiveService.to.recordStudySession();
       InterstitialAdManager.to.showAdIfAvailable();
     } else {
       currentIndex.value = next;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -225,7 +226,7 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _DeckCard extends StatefulWidget {
+class _DeckCard extends StatelessWidget {
   final FlashDeck deck;
   final DeckController controller;
   final int index;
@@ -237,168 +238,131 @@ class _DeckCard extends StatefulWidget {
   });
 
   @override
-  State<_DeckCard> createState() => _DeckCardState();
-}
-
-class _DeckCardState extends State<_DeckCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _fade;
-  late Animation<Offset> _slide;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    _slide = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
-
-    Future.delayed(Duration(milliseconds: widget.index * 55), () {
-      if (mounted) _ctrl.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final total = widget.controller.getTotalCount(widget.deck.id);
-    final due = widget.controller.getDueCount(widget.deck.id);
-    final progress = widget.controller.getProgress(widget.deck.id);
+    final total = controller.getTotalCount(deck.id);
+    final due = controller.getDueCount(deck.id);
+    final progress = controller.getProgress(deck.id);
     final progressColor = progress >= 0.8
         ? const Color(0xFF2E7D32)
         : progress >= 0.4
             ? Colors.orange
             : cs.error;
 
-    return FadeTransition(
-      opacity: _fade,
-      child: SlideTransition(
-        position: _slide,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
-          child: Card(
-            elevation: 0,
-            color: cs.surface.withValues(alpha: 0.9),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16.r),
-              onTap: () => Get.toNamed(Routes.DECK, arguments: widget.deck.id),
-              child: Padding(
-                padding: EdgeInsets.all(16.r),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: Card(
+        elevation: 0,
+        color: cs.surface.withValues(alpha: 0.9),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16.r),
+          onTap: () => Get.toNamed(Routes.DECK, arguments: deck.id),
+          child: Padding(
+            padding: EdgeInsets.all(16.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.deck.title,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: cs.onSurface,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                    Expanded(
+                      child: Text(
+                        deck.title,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: cs.onSurface,
                         ),
-                        PopupMenuButton<String>(
-                          icon: Icon(Icons.more_horiz_rounded, color: cs.onSurfaceVariant),
-                          onSelected: (v) {
-                            if (v == 'edit') {
-                              _editDeck(context, widget.deck);
-                            } else if (v == 'delete') {
-                              _deleteDeck(widget.deck);
-                            }
-                          },
-                          itemBuilder: (_) => [
-                            PopupMenuItem(
-                              value: 'edit',
-                              child: ListTile(
-                                leading: const Icon(Icons.edit_outlined),
-                                title: Text('edit'.tr),
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: ListTile(
-                                leading: Icon(Icons.delete_outline, color: cs.error),
-                                title: Text(
-                                  'delete'.tr,
-                                  style: TextStyle(color: cs.error),
-                                ),
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    if (widget.deck.description.isNotEmpty) ...[
-                      SizedBox(height: 4.h),
-                      Text(
-                        widget.deck.description,
-                        style: TextStyle(fontSize: 12.sp, color: cs.onSurfaceVariant),
-                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                    SizedBox(height: 12.h),
-                    Row(
-                      children: [
-                        _Badge(
-                          label: '$total ${'cards'.tr}',
-                          color: cs.onSurfaceVariant,
-                        ),
-                        SizedBox(width: 8.w),
-                        if (due > 0)
-                          _Badge(
-                            label: '$due ${'due'.tr}',
-                            color: cs.primary,
-                            filled: true,
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.more_horiz_rounded, color: cs.onSurfaceVariant),
+                      onSelected: (v) {
+                        if (v == 'edit') {
+                          _editDeck(context, deck);
+                        } else if (v == 'delete') {
+                          _deleteDeck(deck);
+                        }
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: ListTile(
+                            leading: const Icon(Icons.edit_outlined),
+                            title: Text('edit'.tr),
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
                           ),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: ListTile(
+                            leading: Icon(Icons.delete_outline, color: cs.error),
+                            title: Text(
+                              'delete'.tr,
+                              style: TextStyle(color: cs.error),
+                            ),
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ),
+                        ),
                       ],
-                    ),
-                    SizedBox(height: 10.h),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4.r),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 4.h,
-                        backgroundColor: cs.surfaceContainerHighest,
-                        valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '${(progress * 100).round()}%',
-                        style: TextStyle(fontSize: 11.sp, color: cs.onSurfaceVariant),
-                      ),
                     ),
                   ],
                 ),
-              ),
+                if (deck.description.isNotEmpty) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    deck.description,
+                    style: TextStyle(fontSize: 12.sp, color: cs.onSurfaceVariant),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                SizedBox(height: 12.h),
+                Row(
+                  children: [
+                    _Badge(
+                      label: '$total ${'cards'.tr}',
+                      color: cs.onSurfaceVariant,
+                    ),
+                    SizedBox(width: 8.w),
+                    if (due > 0)
+                      _Badge(
+                        label: '$due ${'due'.tr}',
+                        color: cs.primary,
+                        filled: true,
+                      ),
+                  ],
+                ),
+                SizedBox(height: 10.h),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4.r),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 4.h,
+                    backgroundColor: cs.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${(progress * 100).round()}%',
+                    style: TextStyle(fontSize: 11.sp, color: cs.onSurfaceVariant),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
+    )
+        .animate(delay: (index * 50).ms)
+        .fadeIn()
+        .slideX(begin: -0.1, curve: Curves.easeOut);
   }
 
   void _editDeck(BuildContext context, FlashDeck deck) {
