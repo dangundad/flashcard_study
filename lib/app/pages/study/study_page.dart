@@ -13,6 +13,7 @@ class StudyPage extends GetView<StudyController> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: AppBar(
         title: Obx(
           () => Text(
@@ -30,36 +31,39 @@ class StudyPage extends GetView<StudyController> {
         if (card == null) return const SizedBox.shrink();
 
         return SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              children: [
-                SizedBox(height: 12.h),
-                _ProgressBar(controller: controller, cs: cs),
-                SizedBox(height: 24.h),
-
-                // Flip card
-                Expanded(
-                  child: FlipCardWidget(
-                    front: card.front,
-                    back: card.back,
-                    isFlipped: controller.isFlipped.value,
-                    onTap: controller.flip,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [cs.surface, cs.primary.withValues(alpha: 0.05), cs.surface],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Column(
+                children: [
+                  SizedBox(height: 12.h),
+                  _ProgressBar(controller: controller, cs: cs),
+                  SizedBox(height: 20.h),
+                  Expanded(
+                    child: FlipCardWidget(
+                      front: card.front,
+                      back: card.back,
+                      isFlipped: controller.isFlipped.value,
+                      onTap: controller.flip,
+                    ),
                   ),
-                ),
-
-                SizedBox(height: 20.h),
-
-                // Rating buttons (only visible when flipped)
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: controller.isFlipped.value
-                      ? _RatingButtons(onRate: controller.rateCard)
-                      : _FlipPrompt(),
-                ),
-
-                SizedBox(height: 24.h),
-              ],
+                  SizedBox(height: 16.h),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: controller.isFlipped.value
+                        ? _RatingButtons(onRate: controller.rateCard)
+                        : _FlipPrompt(),
+                  ),
+                  SizedBox(height: 20.h),
+                ],
+              ),
             ),
           ),
         );
@@ -80,37 +84,47 @@ class _ProgressBar extends StatelessWidget {
     final done = controller.currentIndex.value;
     final progress = total > 0 ? done / total : 0.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${controller.remaining} ${'cards_left'.tr}',
-              style: TextStyle(fontSize: 12.sp, color: cs.onSurfaceVariant),
-            ),
-            Text(
-              '${(progress * 100).round()}%',
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: cs.primary,
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${controller.remaining} ${'cards_left'.tr}',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 6.h),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4.r),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 6.h,
-            backgroundColor: cs.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+              Text(
+                '${(progress * 100).round()}%',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: cs.primary,
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          SizedBox(height: 6.h),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.r),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6.h,
+              backgroundColor: cs.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -245,7 +259,7 @@ class _SessionComplete extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              pct >= 80 ? '🎉' : '💪',
+              pct >= 80 ? '?럦' : '?뮞',
               style: TextStyle(fontSize: 64.sp),
             ),
             SizedBox(height: 12.h),
@@ -264,6 +278,7 @@ class _SessionComplete extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
               ),
               child: Column(
                 children: [
@@ -330,8 +345,7 @@ class _Row extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: TextStyle(fontSize: 13.sp, color: cs.onSurfaceVariant)),
+        Text(label, style: TextStyle(fontSize: 13.sp, color: cs.onSurfaceVariant)),
         Text(
           value,
           style: TextStyle(

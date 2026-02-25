@@ -10,14 +10,25 @@ import 'package:flashcard_study/app/data/models/flash_card.dart';
 import 'package:flashcard_study/app/pages/deck/widgets/card_item.dart';
 import 'package:flashcard_study/app/routes/app_pages.dart';
 
-class DeckPage extends StatefulWidget {
+class DeckPage extends GetView<DeckController> {
   const DeckPage({super.key});
 
   @override
-  State<DeckPage> createState() => _DeckPageState();
+  Widget build(BuildContext context) {
+    return _DeckPageContent(controller: controller);
+  }
 }
 
-class _DeckPageState extends State<DeckPage> {
+class _DeckPageContent extends StatefulWidget {
+  final DeckController controller;
+
+  const _DeckPageContent({required this.controller});
+
+  @override
+  State<_DeckPageContent> createState() => _DeckPageState();
+}
+
+class _DeckPageState extends State<_DeckPageContent> {
   late final String deckId;
   final _cards = <FlashCard>[].obs;
 
@@ -29,15 +40,16 @@ class _DeckPageState extends State<DeckPage> {
   }
 
   void _loadCards() {
-    _cards.value = DeckController.to.getCards(deckId);
+    _cards.value = widget.controller.getCards(deckId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final deck = DeckController.to.getDeck(deckId);
+    final deck = widget.controller.getDeck(deckId);
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: AppBar(
         title: Text(deck?.title ?? 'deck'.tr),
         actions: [
@@ -47,68 +59,87 @@ class _DeckPageState extends State<DeckPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Obx(() {
-              if (_cards.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('📝', style: TextStyle(fontSize: 48.sp)),
-                      SizedBox(height: 12.h),
-                      Text(
-                        'no_cards'.tr,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [cs.surface, cs.primary.withValues(alpha: 0.06), cs.surface],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Obx(() {
+                if (_cards.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('?뱷', style: TextStyle(fontSize: 48.sp)),
+                        SizedBox(height: 12.h),
+                        Text(
+                          'no_cards'.tr,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        TextButton.icon(
+                          onPressed: _showAddCardDialog,
+                          icon: const Icon(Icons.add_rounded),
+                          label: Text('add_card'.tr),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView(
+                  padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 24.h),
+                  children: [
+                    _DeckStats(
+                      deckId: deckId,
+                      controller: widget.controller,
+                    ),
+                    SizedBox(height: 14.h),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Text(
+                        'cards'.tr,
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
                           color: cs.onSurfaceVariant,
                         ),
                       ),
-                      SizedBox(height: 8.h),
-                      TextButton.icon(
-                        onPressed: _showAddCardDialog,
-                        icon: const Icon(Icons.add_rounded),
-                        label: Text('add_card'.tr),
+                    ),
+                    SizedBox(height: 8.h),
+                    ..._cards.map(
+                      (card) => CardItem(
+                        card: card,
+                        onEdit: () => _showEditCardDialog(card),
+                        onDelete: () => _deleteCard(card),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
-              }
-
-              return ListView(
-                padding: EdgeInsets.all(16.r),
-                children: [
-                  _DeckStats(deckId: deckId),
-                  SizedBox(height: 16.h),
-                  Text(
-                    'cards'.tr,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  ..._cards.map(
-                    (card) => CardItem(
-                      card: card,
-                      onEdit: () => _showEditCardDialog(card),
-                      onDelete: () => _deleteCard(card),
-                    ),
-                  ),
-                ],
-              );
-            }),
-          ),
-          BannerAdWidget(
-            adUnitId: AdHelper.bannerAdUnitId,
-            type: AdHelper.banner,
-          ),
-        ],
+              }),
+            ),
+            BannerAdWidget(
+              adUnitId: AdHelper.bannerAdUnitId,
+              type: AdHelper.banner,
+            ),
+          ],
+        ),
       ),
       floatingActionButton: Obx(() {
-        final due = DeckController.to.getDueCount(deckId);
+        final due = widget.controller.getDueCount(deckId);
         if (due == 0 || _cards.isEmpty) return const SizedBox.shrink();
         return FloatingActionButton.extended(
           onPressed: _startStudy,
@@ -120,7 +151,7 @@ class _DeckPageState extends State<DeckPage> {
   }
 
   void _startStudy() {
-    Get.find<StudyController>().startSession(deckId);
+    StudyController.to.startSession(deckId);
     Get.toNamed(Routes.STUDY);
   }
 
@@ -165,13 +196,13 @@ class _DeckPageState extends State<DeckPage> {
               final b = backCtrl.text.trim();
               if (f.isEmpty || b.isEmpty) return;
               if (editing == null) {
-                await DeckController.to.addCard(
+                await widget.controller.addCard(
                   deckId: deckId,
                   front: f,
                   back: b,
                 );
               } else {
-                await DeckController.to.updateCard(editing, front: f, back: b);
+                await widget.controller.updateCard(editing, front: f, back: b);
               }
               _loadCards();
               Get.back();
@@ -194,7 +225,7 @@ class _DeckPageState extends State<DeckPage> {
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           FilledButton(
             onPressed: () async {
-              await DeckController.to.deleteCard(card);
+              await widget.controller.deleteCard(card);
               _loadCards();
               Get.back();
             },
@@ -211,52 +242,43 @@ class _DeckPageState extends State<DeckPage> {
 
 class _DeckStats extends StatelessWidget {
   final String deckId;
+  final DeckController controller;
 
-  const _DeckStats({required this.deckId});
+  const _DeckStats({
+    required this.deckId,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final due = DeckController.to.getDueCount(deckId);
-    final total = DeckController.to.getTotalCount(deckId);
-    final progress = DeckController.to.getProgress(deckId);
+    final due = controller.getDueCount(deckId);
+    final total = controller.getTotalCount(deckId);
+    final progress = controller.getProgress(deckId);
 
     return Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
+        color: cs.primaryContainer.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              _Stat(
-                label: 'total_cards'.tr,
-                value: '$total',
-                color: cs.onPrimaryContainer,
-              ),
-              _Stat(
-                label: 'due_today'.tr,
-                value: '$due',
-                color: due > 0 ? cs.primary : cs.onPrimaryContainer,
-              ),
-              _Stat(
-                label: 'mastered'.tr,
-                value: '${(progress * 100).round()}%',
-                color: cs.onPrimaryContainer,
-              ),
-            ],
+          _Stat(
+            label: 'total_cards'.tr,
+            value: '$total',
+            color: cs.onPrimaryContainer,
           ),
-          SizedBox(height: 10.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4.r),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6.h,
-              backgroundColor: cs.onPrimaryContainer.withValues(alpha: 0.15),
-              valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimaryContainer),
-            ),
+          _Stat(
+            label: 'due_today'.tr,
+            value: '$due',
+            color: due > 0 ? cs.primary : cs.onPrimaryContainer,
+          ),
+          _Stat(
+            label: 'mastered'.tr,
+            value: '${(progress * 100).round()}%',
+            color: cs.onPrimaryContainer,
           ),
         ],
       ),
@@ -288,7 +310,7 @@ class _Stat extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 10.sp,
-              color: color.withValues(alpha: 0.7),
+              color: color.withValues(alpha: 0.75),
             ),
             textAlign: TextAlign.center,
           ),

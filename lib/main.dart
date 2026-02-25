@@ -1,8 +1,6 @@
-// ================================================
+﻿// ================================================
 // DangunDad Flutter App - main.dart Template
 // ================================================
-// FlashcardStudy, flashcard_study 치환 후 사용
-// mbti_pro 프로덕션 패턴 기반
 
 import 'dart:async';
 
@@ -10,34 +8,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:flashcard_study/app/admob/ads_helper.dart';
-import 'package:flashcard_study/app/admob/ads_interstitial.dart';
-import 'package:flashcard_study/app/admob/ads_rewarded.dart';
 import 'package:flashcard_study/app/bindings/app_binding.dart';
 import 'package:flashcard_study/app/routes/app_pages.dart';
-import 'package:flashcard_study/app/services/hive_service.dart';
 import 'package:flashcard_study/app/theme/app_theme.dart';
 import 'package:flashcard_study/app/translate/translate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 릴리즈 모드에서 debugPrint 비활성화
   if (kReleaseMode) {
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
 
-  // 세로 모드 고정
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // AdMob 초기화 (GDPR/CCPA 동의 → SDK 초기화)
   try {
     await AdHelper.initializeAdConsent();
 
@@ -51,21 +43,12 @@ Future<void> main() async {
     debugPrint('AdMob initialization failed: $e');
   }
 
-  // Hive 초기화 (어댑터 등록 + Box 열기)
-  await HiveService.init();
-  Get.put<HiveService>(HiveService(), permanent: true);
+  await AppBinding.initializeServices();
 
-  // Edge-to-Edge UI
-  unawaited(
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-      overlays: [SystemUiOverlay.top],
-    ),
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+    overlays: [SystemUiOverlay.top],
   );
-
-  // 광고 매니저 초기화
-  Get.put(InterstitialAdManager(), permanent: true);
-  Get.put(RewardedAdManager(), permanent: true);
 
   runApp(const FlashcardStudyApp());
 }

@@ -1,8 +1,8 @@
-// ================================================
+﻿// ================================================
 // DangunDad Flutter App - translate.dart Template
 // ================================================
-// mbti_pro 프로덕션 패턴 기반
-// 개발 시 한국어(ko)만 정의, 다국어는 추후 추가
+// mbti_pro ?꾨줈?뺤뀡 ?⑦꽩 湲곕컲
+// 媛쒕컻 ???쒓뎅??ko)留??뺤쓽, ?ㅺ뎅?대뒗 異뷀썑 異붽?
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,6 +32,19 @@ class Languages extends Translations {
       'success': 'Success',
       'loading': 'Loading...',
       'no_data': 'No data',
+      'open_history': 'History',
+      'open_stats': 'Stats',
+      'refresh': 'Refresh',
+      'clear_all': 'Clear All',
+      'no_history': 'No history',
+      'unknown_event': 'Unknown Event',
+      'history_subtitle': 'Screen: @screen / Route: @route',
+      'total_events': 'Total Events',
+      'today_events': 'Today',
+      'week_events': 'This Week',
+      'unique_routes': 'Routes',
+      'unique_screens': 'Screens',
+      'top_events': 'Top Events',
 
       // Settings
       'dark_mode': 'Dark Mode',
@@ -41,6 +54,29 @@ class Languages extends Translations {
       'rate_app': 'Rate App',
       'privacy_policy': 'Privacy Policy',
       'remove_ads': 'Remove Ads',
+      'premium_title': 'Premium',
+      'premium_subtitle': 'Remove ads, unlock all features, and stay focused.',
+      'premium_benefits': 'Premium Benefits',
+      'premium_benefit_remove_ads': 'Remove ads',
+      'premium_benefit_unlimited': 'Use all features without limits',
+      'premium_benefit_statistics': 'View additional statistics',
+      'premium_plan_title': 'Choose a plan',
+      'premium_plan_weekly': 'Weekly',
+      'premium_plan_weekly_desc': '1 week premium access',
+      'premium_plan_monthly': 'Monthly',
+      'premium_plan_monthly_desc': '30 days premium access',
+      'premium_plan_yearly': 'Yearly',
+      'premium_plan_yearly_desc': '365 days premium access',
+      'premium_purchase': 'Start Premium',
+      'premium_restore': 'Restore Purchase',
+      'premium_owned': 'Premium is active',
+      'premium_purchase_note': 'If your payment is completed, purchase will be restored automatically after app restart.',
+      'purchase_error': 'Purchase Error',
+      'purchase_unavailable': 'In-app purchase is not available now.',
+      'purchase_failed': 'Purchase failed. Please try again.',
+      'restore_error': 'Restore failed. Please try again.',
+      'purchase_success': 'Purchase Completed',
+      'premium_ready': 'Premium is now active.',
 
       // Feedback
       'send_feedback': 'Send Feedback',
@@ -48,6 +84,9 @@ class Languages extends Translations {
 
       // App-specific
       'app_name': 'Flashcard Study',
+      'history': 'History',
+      'stats': 'Stats',
+      'settings_page': 'Settings',
       'no_decks': 'No decks yet',
       'no_decks_sub': 'Create a deck to start studying!',
       'new_deck': 'New Deck',
@@ -99,12 +138,24 @@ class Languages extends Translations {
       'done': '완료',
       'ok': '확인',
       'yes': '예',
-      'no': '아니오',
+      'no': '아니요',
       'error': '오류',
       'success': '성공',
-      'loading': '로딩 중...',
+      'loading': '불러오는 중...',
       'no_data': '데이터 없음',
-
+      'open_history': '히스토리',
+      'open_stats': '통계',
+      'refresh': '새로고침',
+      'clear_all': '전체 삭제',
+      'no_history': '기록이 없습니다',
+      'unknown_event': '알 수 없는 이벤트',
+      'history_subtitle': '화면: @screen / 경로: @route',
+      'total_events': '총 이벤트',
+      'today_events': '오늘',
+      'week_events': '이번 주',
+      'unique_routes': '고유 경로',
+      'unique_screens': '고유 화면',
+      'top_events': '상위 이벤트',
       // 설정
       'dark_mode': '다크 모드',
       'language': '언어',
@@ -113,21 +164,45 @@ class Languages extends Translations {
       'rate_app': '앱 평가',
       'privacy_policy': '개인정보처리방침',
       'remove_ads': '광고 제거',
-
+      'premium_title': '프리미엄',
+      'premium_subtitle': '광고 제거, 추가 기능 잠금 해제, 끊김 없는 이용을 제공합니다.',
+      'premium_benefits': '프리미엄 혜택',
+      'premium_benefit_remove_ads': '광고 제거',
+      'premium_benefit_unlimited': '모든 기능 잠금 해제',
+      'premium_benefit_statistics': '추가 통계 보기',
+      'premium_plan_title': '요금제 선택',
+      'premium_plan_weekly': '주간',
+      'premium_plan_weekly_desc': '7일 프리미엄',
+      'premium_plan_monthly': '월간',
+      'premium_plan_monthly_desc': '30일 프리미엄',
+      'premium_plan_yearly': '연간',
+      'premium_plan_yearly_desc': '365일 프리미엄',
+      'premium_purchase': '구매하기',
+      'premium_restore': '구매 복원',
+      'premium_owned': '프리미엄이 활성화됐어요',
+      'premium_purchase_note': '결제가 완료되면 앱 재시작 후에도 자동으로 복원돼요.',
+      'purchase_error': '구매 오류',
+      'purchase_unavailable': '인앱 결제를 사용할 수 없어요.',
+      'purchase_failed': '결제에 실패했어요. 다시 시도해요.',
+      'restore_error': '구매 복원에 실패했어요.',
+      'purchase_success': '결제 완료',
+      'premium_ready': '프리미엄이 활성화됐어요.',
       // 피드백
       'send_feedback': '피드백 보내기',
       'more_apps': '더 많은 앱',
-
-      // 앱별
+      // 앱 전용
       'app_name': '플래시카드 학습',
+      'history': '기록',
+      'stats': '통계',
+      'settings_page': '설정',
       'no_decks': '덱이 없습니다',
-      'no_decks_sub': '덱을 만들어 공부를 시작해보세요!',
+      'no_decks_sub': '덱을 만들어서 학습을 시작하세요!',
       'new_deck': '새 덱 만들기',
       'edit_deck': '덱 편집',
       'delete_deck': '덱 삭제',
-      'delete_deck_confirm': '"{title}" 덱과 모든 카드를 삭제할까요?',
-      'deck_title': '덱 이름',
-      'deck_desc': '설명 (선택)',
+      'delete_deck_confirm': '"{title}" 덱과 모든 카드를 삭제하나요?',
+      'deck_title': '덱 제목',
+      'deck_desc': '설명 (선택사항)',
       'deck': '덱',
       'cards': '장',
       'due': '복습',
@@ -138,13 +213,13 @@ class Languages extends Translations {
       'add_card': '카드 추가',
       'edit_card': '카드 편집',
       'delete_card': '카드 삭제',
-      'delete_card_confirm': '이 카드를 삭제할까요?',
+      'delete_card_confirm': '이 카드를 삭제하나요?',
       'front': '앞면',
       'back': '뒷면',
-      'study_due': '학습 시작 (@{n}장 복습)',
+      'study_due': '학습 시작 (@{n}개 복습)',
       'card_front': '질문',
       'card_back': '정답',
-      'tap_to_flip': '탭해서 답 보기',
+      'tap_to_flip': '탭해서 정답 보기',
       'tap_card_to_flip': '카드를 탭해서 뒤집기',
       'studying': '카드',
       'cards_left': '남음',
@@ -161,3 +236,6 @@ class Languages extends Translations {
     },
   };
 }
+
+
+
