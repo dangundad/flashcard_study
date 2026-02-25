@@ -15,6 +15,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flashcard_study/app/admob/ads_helper.dart';
 import 'package:flashcard_study/app/bindings/app_binding.dart';
 import 'package:flashcard_study/app/routes/app_pages.dart';
+import 'package:flashcard_study/app/services/hive_service.dart';
 import 'package:flashcard_study/app/theme/app_theme.dart';
 import 'package:flashcard_study/app/translate/translate.dart';
 
@@ -56,6 +57,25 @@ Future<void> main() async {
 class FlashcardStudyApp extends StatelessWidget {
   const FlashcardStudyApp({super.key});
 
+  GetMaterialApp _buildFallbackApp() {
+    return GetMaterialApp(
+      supportedLocales: Languages.supportedLocales,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      translations: Languages(),
+      locale: const Locale('en'),
+      fallbackLocale: const Locale('en'),
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      home: const Scaffold(body: SizedBox.shrink()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -63,6 +83,10 @@ class FlashcardStudyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
+        if (!Get.isRegistered<HiveService>()) {
+          return _buildFallbackApp();
+        }
+
         return GetMaterialApp(
           supportedLocales: Languages.supportedLocales,
           localizationsDelegates: const [
