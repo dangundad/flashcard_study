@@ -58,6 +58,17 @@ class _DeckPageState extends State<_DeckPageContent> {
             onPressed: _showAddCardDialog,
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(3),
+          child: Container(
+            height: 3,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [cs.primary, cs.tertiary],
+              ),
+            ),
+          ),
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -96,38 +107,47 @@ class _DeckPageState extends State<_DeckPageContent> {
                   );
                 }
 
-                return ListView(
+                return ListView.builder(
                   padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 24.h),
-                  children: [
-                    _DeckStats(
-                      deckId: deckId,
-                      controller: widget.controller,
-                    ),
-                    SizedBox(height: 14.h),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Text(
-                        'cards'.tr,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: cs.onSurfaceVariant,
+                  itemCount: _cards.length + 3,
+                  itemBuilder: (context, i) {
+                    if (i == 0) {
+                      return _DeckStats(
+                        deckId: deckId,
+                        controller: widget.controller,
+                      );
+                    }
+                    if (i == 1) {
+                      return Padding(
+                        padding: EdgeInsets.only(top: 14.h, bottom: 8.h),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          child: Text(
+                            'cards'.tr,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    ..._cards.map(
-                      (card) => CardItem(
+                      );
+                    }
+                    final cardIndex = i - 2;
+                    if (cardIndex < _cards.length) {
+                      final card = _cards[cardIndex];
+                      return CardItem(
                         card: card,
                         onEdit: () => _showEditCardDialog(card),
                         onDelete: () => _deleteCard(card),
-                      ),
-                    ),
-                  ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 );
               }),
             ),
