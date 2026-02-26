@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 
 import 'package:flashcard_study/app/admob/ads_banner.dart';
 import 'package:flashcard_study/app/admob/ads_helper.dart';
+import 'package:flashcard_study/app/admob/ads_rewarded.dart';
 import 'package:flashcard_study/app/controllers/deck_controller.dart';
+import 'package:flashcard_study/app/data/deck_templates.dart';
 import 'package:flashcard_study/app/data/models/flash_deck.dart';
 import 'package:flashcard_study/app/routes/app_pages.dart';
 
@@ -39,16 +41,31 @@ class HomePage extends GetView<DeckController> {
               Expanded(
                 child: Obx(() {
                   if (controller.decks.isEmpty) {
-                    return _EmptyState(cs: cs);
+                    return ListView(
+                      padding: EdgeInsets.fromLTRB(16.r, 0, 16.r, 16.r),
+                      children: [
+                        _EmptyState(cs: cs),
+                        SizedBox(height: 24.h),
+                        _TemplateSectionWidget(controller: controller),
+                      ],
+                    );
                   }
                   return ListView.builder(
                     padding: EdgeInsets.fromLTRB(16.r, 0, 16.r, 16.r),
-                    itemCount: controller.decks.length,
-                    itemBuilder: (context, i) => _DeckCard(
-                      deck: controller.decks[i],
-                      controller: controller,
-                      index: i,
-                    ),
+                    itemCount: controller.decks.length + 1,
+                    itemBuilder: (context, i) {
+                      if (i < controller.decks.length) {
+                        return _DeckCard(
+                          deck: controller.decks[i],
+                          controller: controller,
+                          index: i,
+                        );
+                      }
+                      return Padding(
+                        padding: EdgeInsets.only(top: 8.h),
+                        child: _TemplateSectionWidget(controller: controller),
+                      );
+                    },
                   );
                 }),
               ),
@@ -501,6 +518,211 @@ class _Badge extends StatelessWidget {
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           color: color,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Template Section ──────────────────────────────────────
+
+class _TemplateSectionWidget extends StatelessWidget {
+  final DeckController controller;
+  const _TemplateSectionWidget({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+          decoration: BoxDecoration(
+            color: cs.tertiaryContainer.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: cs.tertiary.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.auto_awesome_rounded, size: 18.r, color: cs.tertiary),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'templates'.tr,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w800,
+                        color: cs.onTertiaryContainer,
+                      ),
+                    ),
+                    Text(
+                      'templates_desc'.tr,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: cs.onTertiaryContainer.withValues(alpha: 0.75),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 10.h),
+        ...DeckTemplates.all.map(
+          (tpl) => Padding(
+            padding: EdgeInsets.only(bottom: 8.h),
+            child: _TemplateCard(template: tpl, controller: controller),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TemplateCard extends StatelessWidget {
+  final DeckTemplate template;
+  final DeckController controller;
+
+  const _TemplateCard({required this.template, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final preview = template.cards.take(3).toList();
+
+    return Card(
+      elevation: 0,
+      color: cs.secondaryContainer.withValues(alpha: 0.35),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        side: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(14.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        template.titleKey.tr,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w800,
+                          color: cs.onSecondaryContainer,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        template.descKey.tr,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: cs.onSecondaryContainer.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Obx(() {
+                  final adReady = Get.isRegistered<RewardedAdManager>() &&
+                      RewardedAdManager.to.isAdReady.value;
+                  return FilledButton.tonal(
+                    onPressed: () => controller.addTemplateWithAd(template),
+                    style: FilledButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 6.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.ondemand_video_rounded,
+                          size: 14.r,
+                          color: adReady ? cs.tertiary : null,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'add_with_ad'.tr,
+                          style: TextStyle(fontSize: 11.sp),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              'template_preview'.tr,
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurfaceVariant,
+                letterSpacing: 0.5,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            ...preview.map(
+              (card) => Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          card.front,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 12.r,
+                        color: cs.onSurfaceVariant,
+                      ),
+                      SizedBox(width: 6.w),
+                      Expanded(
+                        child: Text(
+                          card.back,
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

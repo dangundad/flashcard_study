@@ -138,6 +138,19 @@ class Languages extends Translations {
       'stats_longest_streak': 'Longest Streak',
       'stats_total_decks': 'Decks',
       'stats_total_cards': 'Total Cards',
+
+      // Templates
+      'templates': 'Templates',
+      'templates_desc': 'Watch an ad to add a ready-made deck',
+      'template_english': 'English Vocabulary',
+      'template_english_desc': '50 basic English words with definitions',
+      'template_math': 'Math Facts',
+      'template_math_desc': 'Times tables and basic formulas (30 cards)',
+      'template_capitals': 'World Capitals',
+      'template_capitals_desc': 'Countries and their capital cities (30 cards)',
+      'get_item_ad': 'Watch Ad',
+      'add_with_ad': 'Add (Watch Ad)',
+      'template_preview': 'Preview',
     },
     'ko': {
       // 공통
@@ -259,6 +272,19 @@ class Languages extends Translations {
       'stats_longest_streak': '최장 연속',
       'stats_total_decks': '덱 수',
       'stats_total_cards': '전체 카드',
+
+      // 템플릿
+      'templates': '템플릿',
+      'templates_desc': '광고를 보고 완성된 덱을 추가하세요',
+      'template_english': '영어 기초 단어',
+      'template_english_desc': '기초 영단어 50개',
+      'template_math': '수학 공식',
+      'template_math_desc': '구구단 + 기초 공식 30개',
+      'template_capitals': '세계 수도',
+      'template_capitals_desc': '세계 나라와 수도 30개',
+      'get_item_ad': '광고 보기',
+      'add_with_ad': '추가 (광고 보기)',
+      'template_preview': '미리보기',
     },
   };
 }

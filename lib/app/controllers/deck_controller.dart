@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import 'package:flashcard_study/app/admob/ads_rewarded.dart';
+import 'package:flashcard_study/app/data/deck_templates.dart';
 import 'package:flashcard_study/app/data/models/flash_card.dart';
 import 'package:flashcard_study/app/data/models/flash_deck.dart';
 import 'package:flashcard_study/app/services/hive_service.dart';
@@ -101,4 +103,46 @@ class DeckController extends GetxController {
 
   int getDueCount(String deckId) => getDueCards(deckId).length;
   int getTotalCount(String deckId) => getCards(deckId).length;
+
+  // ─── Template operations ──────────────────────────────────
+
+  /// 보상형 광고 시청 후 템플릿 덱 추가
+  void addTemplateWithAd(DeckTemplate template) {
+    final adManager = Get.isRegistered<RewardedAdManager>()
+        ? RewardedAdManager.to
+        : null;
+    if (adManager == null || !adManager.isAdReady.value) {
+      Get.snackbar('get_item_ad'.tr, 'loading'.tr);
+      return;
+    }
+    adManager.showAdIfAvailable(
+      onUserEarnedReward: (_) => _installTemplate(template),
+    );
+  }
+
+  Future<void> _installTemplate(DeckTemplate template) async {
+    final deckId = DateTime.now().microsecondsSinceEpoch.toString();
+    final deck = FlashDeck(
+      id: deckId,
+      title: template.titleKey.tr,
+      description: template.descKey.tr,
+      createdAt: DateTime.now(),
+    );
+    await HiveService.to.decksBox.put(deck.id, deck);
+
+    int offset = 0;
+    for (final entry in template.cards) {
+      final card = FlashCard(
+        id: '${deckId}_$offset',
+        deckId: deckId,
+        front: entry.front,
+        back: entry.back,
+        createdAt: DateTime.now().add(Duration(microseconds: offset)),
+      );
+      await HiveService.to.cardsBox.put(card.id, card);
+      offset++;
+    }
+    _loadDecks();
+    Get.snackbar('success'.tr, template.titleKey.tr);
+  }
 }
