@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:flashcard_study/app/admob/ads_banner.dart';
 import 'package:flashcard_study/app/admob/ads_helper.dart';
@@ -19,46 +20,102 @@ class HomePage extends GetView<DeckController> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Text(
+              '📚',
+              style: TextStyle(fontSize: 22.sp),
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              'app_name'.tr,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w800,
+                color: cs.onSurface,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(LucideIcons.chartBar, size: 20.r, color: cs.onSurfaceVariant),
+            tooltip: 'stats'.tr,
+            onPressed: () => Get.toNamed(Routes.STATS),
+          ),
+          IconButton(
+            icon: Icon(LucideIcons.settings, size: 20.r, color: cs.onSurfaceVariant),
+            tooltip: 'settings'.tr,
+            onPressed: () => Get.toNamed(Routes.SETTINGS),
+          ),
+          SizedBox(width: 4.w),
+        ],
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: cs.surface,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(3),
+          child: Container(
+            height: 3,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [cs.primary, cs.tertiary],
+              ),
+            ),
+          ),
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              cs.primary.withValues(alpha: 0.12),
+              cs.primary.withValues(alpha: 0.08),
               cs.surface,
-              cs.secondaryContainer.withValues(alpha: 0.15),
+              cs.secondaryContainer.withValues(alpha: 0.12),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: SafeArea(
+          top: false,
           child: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.all(16.r),
-                child: _Header(cs: cs, onCreate: () => _showCreateDeckDialog(context)),
-              ),
               Expanded(
                 child: Obx(() {
                   if (controller.decks.isEmpty) {
                     return ListView(
-                      padding: EdgeInsets.fromLTRB(16.r, 0, 16.r, 16.r),
+                      padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r),
                       children: [
                         _EmptyState(cs: cs),
+                        SizedBox(height: 20.h),
+                        _GradientButton(
+                          label: 'new_deck'.tr,
+                          icon: LucideIcons.plus,
+                          onTap: () => _showCreateDeckDialog(context),
+                        ),
                         SizedBox(height: 24.h),
                         _TemplateSectionWidget(controller: controller),
                       ],
                     );
                   }
                   return ListView.builder(
-                    padding: EdgeInsets.fromLTRB(16.r, 0, 16.r, 16.r),
-                    itemCount: controller.decks.length + 1,
+                    padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r),
+                    itemCount: controller.decks.length + 2,
                     itemBuilder: (context, i) {
-                      if (i < controller.decks.length) {
+                      if (i == 0) {
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: _TodaySummaryCard(controller: controller),
+                        );
+                      }
+                      final deckIndex = i - 1;
+                      if (deckIndex < controller.decks.length) {
                         return _DeckCard(
-                          deck: controller.decks[i],
+                          deck: controller.decks[deckIndex],
                           controller: controller,
-                          index: i,
+                          index: deckIndex,
                         );
                       }
                       return Padding(
@@ -91,12 +148,15 @@ class HomePage extends GetView<DeckController> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'home_fab',
-        onPressed: () => _showCreateDeckDialog(context),
-        icon: const Icon(Icons.auto_awesome_rounded),
-        label: Text('new_deck'.tr),
-      ),
+      floatingActionButton: Obx(() {
+        if (controller.decks.isEmpty) return const SizedBox.shrink();
+        return FloatingActionButton.extended(
+          heroTag: 'home_fab',
+          onPressed: () => _showCreateDeckDialog(context),
+          icon: const Icon(LucideIcons.plus),
+          label: Text('new_deck'.tr),
+        );
+      }),
     );
   }
 
@@ -138,68 +198,145 @@ class HomePage extends GetView<DeckController> {
   }
 }
 
-class _Header extends StatelessWidget {
-  final ColorScheme cs;
-  final VoidCallback onCreate;
+// ─── Today Summary Card ───────────────────────────────────────────────────────
 
-  const _Header({required this.cs, required this.onCreate});
+class _TodaySummaryCard extends StatelessWidget {
+  final DeckController controller;
+  const _TodaySummaryCard({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    final totalDue = controller.decks.fold<int>(
+      0,
+      (sum, d) => sum + controller.getDueCount(d.id),
+    );
+    final totalCards = controller.decks.fold<int>(
+      0,
+      (sum, d) => sum + controller.getTotalCount(d.id),
+    );
+    final totalDecks = controller.decks.length;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            cs.primaryContainer,
+            cs.secondaryContainer.withValues(alpha: 0.7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: cs.primary.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: _SummaryItem(
+              icon: LucideIcons.layers,
+              value: '$totalDecks',
+              label: 'stats_total_decks'.tr,
+              cs: cs,
+            ),
+          ),
+          _VerticalDivider(cs: cs),
+          Expanded(
+            child: _SummaryItem(
+              icon: LucideIcons.creditCard,
+              value: '$totalCards',
+              label: 'total_cards'.tr,
+              cs: cs,
+            ),
+          ),
+          _VerticalDivider(cs: cs),
+          Expanded(
+            child: _SummaryItem(
+              icon: LucideIcons.refreshCcw,
+              value: '$totalDue',
+              label: 'due_today'.tr,
+              cs: cs,
+              highlight: totalDue > 0,
+            ),
+          ),
+        ],
+      ),
+    )
+        .animate()
+        .fadeIn(duration: 400.ms)
+        .slideY(begin: -0.05, curve: Curves.easeOut);
+  }
+}
+
+class _SummaryItem extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final ColorScheme cs;
+  final bool highlight;
+
+  const _SummaryItem({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.cs,
+    this.highlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final valueColor = highlight ? cs.error : cs.onPrimaryContainer;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 20.r, color: cs.onPrimaryContainer.withValues(alpha: 0.75)),
+        SizedBox(height: 6.h),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 22.sp,
+            fontWeight: FontWeight.w900,
+            color: valueColor,
+          ),
+        ),
+        SizedBox(height: 2.h),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+class _VerticalDivider extends StatelessWidget {
+  final ColorScheme cs;
+  const _VerticalDivider({required this.cs});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
-      ),
-      padding: EdgeInsets.all(18.r),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.9, end: 1),
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.easeOutBack,
-                builder: (context, value, child) => Transform.scale(
-                  scale: value,
-                  child: child,
-                ),
-                child: Text('📚', style: TextStyle(fontSize: 32.sp)),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Text(
-                  'app_name'.tr,
-                  style: TextStyle(
-                    fontSize: 26.sp,
-                    fontWeight: FontWeight.w900,
-                    color: cs.onSurface,
-                  ),
-                ),
-              ),
-              FilledButton.tonal(
-                onPressed: onCreate,
-                style: FilledButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                ),
-                child: Text(
-                  'new_deck'.tr,
-                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-        ],
-      ),
+      width: 1,
+      height: 48.h,
+      color: cs.onPrimaryContainer.withValues(alpha: 0.15),
+      margin: EdgeInsets.symmetric(horizontal: 4.w),
     );
   }
 }
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
 
 class _EmptyState extends StatelessWidget {
   final ColorScheme cs;
@@ -209,7 +346,7 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -243,6 +380,70 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
+// ─── Gradient CTA Button ──────────────────────────────────────────────────────
+
+class _GradientButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _GradientButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Get.theme.colorScheme;
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [cs.primary, cs.tertiary],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: cs.primary.withValues(alpha: 0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16.r),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 22.r, color: cs.onPrimary),
+                SizedBox(width: 10.w),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Deck Card ────────────────────────────────────────────────────────────────
+
 class _DeckCard extends StatelessWidget {
   final FlashDeck deck;
   final DeckController controller;
@@ -268,110 +469,161 @@ class _DeckCard extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
-      child: Card(
-        elevation: 0,
-        color: cs.surface.withValues(alpha: 0.9),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16.r),
-          onTap: () => Get.toNamed(Routes.DECK, arguments: deck.id),
-          child: Padding(
-            padding: EdgeInsets.all(16.r),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        deck.title,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          color: cs.onSurface,
+      child: Container(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(20.r),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20.r),
+            onTap: () => Get.toNamed(Routes.DECK, arguments: deck.id),
+            child: Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 40.r,
+                        height: 40.r,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              cs.primary.withValues(alpha: 0.15),
+                              cs.tertiary.withValues(alpha: 0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                        child: Icon(
+                          LucideIcons.bookOpen,
+                          size: 20.r,
+                          color: cs.primary,
+                        ),
                       ),
-                    ),
-                    PopupMenuButton<String>(
-                      icon: Icon(Icons.more_horiz_rounded, color: cs.onSurfaceVariant),
-                      onSelected: (v) {
-                        if (v == 'edit') {
-                          _editDeck(context, deck);
-                        } else if (v == 'delete') {
-                          _deleteDeck(deck);
-                        }
-                      },
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: ListTile(
-                            leading: const Icon(Icons.edit_outlined),
-                            title: Text('edit'.tr),
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: ListTile(
-                            leading: Icon(Icons.delete_outline, color: cs.error),
-                            title: Text(
-                              'delete'.tr,
-                              style: TextStyle(color: cs.error),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              deck.title,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: cs.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                          ),
+                            if (deck.description.isNotEmpty) ...[
+                              SizedBox(height: 2.h),
+                              Text(
+                                deck.description,
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
                         ),
-                      ],
+                      ),
+                      PopupMenuButton<String>(
+                        icon: Icon(
+                          LucideIcons.ellipsis,
+                          color: cs.onSurfaceVariant,
+                          size: 20.r,
+                        ),
+                        onSelected: (v) {
+                          if (v == 'edit') {
+                            _editDeck(context, deck);
+                          } else if (v == 'delete') {
+                            _deleteDeck(deck);
+                          }
+                        },
+                        itemBuilder: (_) => [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: ListTile(
+                              leading: Icon(LucideIcons.pencil, size: 18.r),
+                              title: Text('edit'.tr),
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: ListTile(
+                              leading: Icon(
+                                LucideIcons.trash2,
+                                color: cs.error,
+                                size: 18.r,
+                              ),
+                              title: Text(
+                                'delete'.tr,
+                                style: TextStyle(color: cs.error),
+                              ),
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 14.h),
+                  Row(
+                    children: [
+                      _Badge(
+                        label: '$total ${'cards'.tr}',
+                        color: cs.onSurfaceVariant,
+                      ),
+                      SizedBox(width: 8.w),
+                      if (due > 0)
+                        _Badge(
+                          label: '$due ${'due'.tr}',
+                          color: cs.primary,
+                          filled: true,
+                        ),
+                      const Spacer(),
+                      Text(
+                        '${(progress * 100).round()}%',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
+                          color: progressColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.h),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6.r),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 6.h,
+                      backgroundColor: cs.surfaceContainerHighest,
+                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                     ),
-                  ],
-                ),
-                if (deck.description.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
-                  Text(
-                    deck.description,
-                    style: TextStyle(fontSize: 12.sp, color: cs.onSurfaceVariant),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                SizedBox(height: 12.h),
-                Row(
-                  children: [
-                    _Badge(
-                      label: '$total ${'cards'.tr}',
-                      color: cs.onSurfaceVariant,
-                    ),
-                    SizedBox(width: 8.w),
-                    if (due > 0)
-                      _Badge(
-                        label: '$due ${'due'.tr}',
-                        color: cs.primary,
-                        filled: true,
-                      ),
-                  ],
-                ),
-                SizedBox(height: 10.h),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4.r),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 4.h,
-                    backgroundColor: cs.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${(progress * 100).round()}%',
-                    style: TextStyle(fontSize: 11.sp, color: cs.onSurfaceVariant),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -431,6 +683,8 @@ class _DeckCard extends StatelessWidget {
     );
   }
 }
+
+// ─── Deck Dialog ──────────────────────────────────────────────────────────────
 
 class _DeckDialog extends StatelessWidget {
   final TextEditingController titleController;
@@ -496,6 +750,8 @@ class _DeckDialog extends StatelessWidget {
   }
 }
 
+// ─── Badge ────────────────────────────────────────────────────────────────────
+
 class _Badge extends StatelessWidget {
   final String label;
   final Color color;
@@ -524,7 +780,7 @@ class _Badge extends StatelessWidget {
   }
 }
 
-// ─── Template Section ──────────────────────────────────────
+// ─── Template Section ─────────────────────────────────────────────────────────
 
 class _TemplateSectionWidget extends StatelessWidget {
   final DeckController controller;
@@ -536,50 +792,28 @@ class _TemplateSectionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-          decoration: BoxDecoration(
-            color: cs.tertiaryContainer.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: cs.tertiary.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.auto_awesome_rounded, size: 18.r, color: cs.tertiary),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'templates'.tr,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
-                        color: cs.onTertiaryContainer,
-                      ),
-                    ),
-                    Text(
-                      'templates_desc'.tr,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: cs.onTertiaryContainer.withValues(alpha: 0.75),
-                      ),
-                    ),
-                  ],
-                ),
+        Row(
+          children: [
+            Icon(LucideIcons.sparkles, size: 18.r, color: cs.tertiary),
+            SizedBox(width: 8.w),
+            Text(
+              'templates'.tr,
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w800,
+                color: cs.onSurface,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 6.h),
+        Text(
+          'templates_desc'.tr,
+          style: TextStyle(fontSize: 12.sp, color: cs.onSurfaceVariant),
+        ),
+        SizedBox(height: 12.h),
         ...DeckTemplates.all.map(
-          (tpl) => Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
-            child: _TemplateCard(template: tpl, controller: controller),
-          ),
+          (tpl) => _TemplateCard(template: tpl, controller: controller),
         ),
       ],
     );
@@ -590,139 +824,129 @@ class _TemplateCard extends StatelessWidget {
   final DeckTemplate template;
   final DeckController controller;
 
-  const _TemplateCard({required this.template, required this.controller});
+  const _TemplateCard({
+    required this.template,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final preview = template.cards.take(3).toList();
+    final adManager = Get.isRegistered<RewardedAdManager>()
+        ? RewardedAdManager.to
+        : null;
 
-    return Card(
-      elevation: 0,
-      color: cs.secondaryContainer.withValues(alpha: 0.35),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14.r),
-        side: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(14.r),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        template.titleKey.tr,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w800,
-                          color: cs.onSecondaryContainer,
-                        ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        template.descKey.tr,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: cs.onSecondaryContainer.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Obx(() {
-                  final adReady = Get.isRegistered<RewardedAdManager>() &&
-                      RewardedAdManager.to.isAdReady.value;
-                  return FilledButton.tonal(
-                    onPressed: () => controller.addTemplateWithAd(template),
-                    style: FilledButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10.w,
-                        vertical: 6.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.ondemand_video_rounded,
-                          size: 14.r,
-                          color: adReady ? cs.tertiary : null,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'add_with_ad'.tr,
-                          style: TextStyle(fontSize: 11.sp),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-            SizedBox(height: 10.h),
-            Text(
-              'template_preview'.tr,
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w600,
-                color: cs.onSurfaceVariant,
-                letterSpacing: 0.5,
-              ),
-            ),
-            SizedBox(height: 6.h),
-            ...preview.map(
-              (card) => Padding(
-                padding: EdgeInsets.only(bottom: 4.h),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          card.front,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: 12.r,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      SizedBox(width: 6.w),
-                      Expanded(
-                        child: Text(
-                          card.back,
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: cs.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: 10.h),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.45),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(14.r),
+          child: Row(
+            children: [
+              Container(
+                width: 42.r,
+                height: 42.r,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      cs.tertiary.withValues(alpha: 0.2),
+                      cs.secondary.withValues(alpha: 0.15),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(
+                  LucideIcons.bookMarked,
+                  size: 20.r,
+                  color: cs.tertiary,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      template.titleKey.tr,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      template.descKey.tr,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 8.w),
+              adManager != null
+                  ? Obx(() {
+                      final ready = adManager.isAdReady.value;
+                      return FilledButton.tonal(
+                        onPressed: ready
+                            ? () => controller.addTemplateWithAd(template)
+                            : null,
+                        style: FilledButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 8.h,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(LucideIcons.play, size: 14.r),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'add_with_ad'.tr,
+                              style: TextStyle(fontSize: 11.sp),
+                            ),
+                          ],
+                        ),
+                      );
+                    })
+                  : FilledButton.tonal(
+                      onPressed: null,
+                      style: FilledButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 8.h,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                      ),
+                      child: Text(
+                        'loading'.tr,
+                        style: TextStyle(fontSize: 11.sp),
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );
