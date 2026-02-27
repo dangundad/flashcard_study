@@ -12,6 +12,7 @@ import 'package:flashcard_study/app/controllers/history_controller.dart';
 import 'package:flashcard_study/app/controllers/stats_controller.dart';
 
 import 'package:flashcard_study/app/services/purchase_service.dart';
+import 'package:flashcard_study/app/services/app_rating_service.dart';
 import 'package:flashcard_study/app/controllers/premium_controller.dart';
 
 class AppBinding implements Bindings {
@@ -86,6 +87,9 @@ class AppBinding implements Bindings {
     if (!Get.isRegistered<RewardedAdManager>()) {
       Get.put(RewardedAdManager(), permanent: true);
     }
+
+    if (!Get.isRegistered<AppRatingService>()) {
+      Get.put(AppRatingService(), permanent: true);
+    }
   }
 }
-
