@@ -16,7 +16,7 @@ import 'package:flashcard_study/app/admob/ads_helper.dart';
 import 'package:flashcard_study/app/bindings/app_binding.dart';
 import 'package:flashcard_study/app/routes/app_pages.dart';
 import 'package:flashcard_study/app/services/hive_service.dart';
-import 'package:flashcard_study/app/theme/app_theme.dart';
+import 'package:flashcard_study/app/theme/app_flex_theme.dart';
 import 'package:flashcard_study/app/translate/translate.dart';
 
 Future<void> main() async {
@@ -70,8 +70,8 @@ class FlashcardStudyApp extends StatelessWidget {
       fallbackLocale: const Locale('en'),
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: AppFlexTheme.light,
+      darkTheme: AppFlexTheme.dark,
       home: const Scaffold(body: SizedBox.shrink()),
     );
   }
@@ -101,8 +101,8 @@ class FlashcardStudyApp extends StatelessWidget {
           defaultTransition: Transition.fadeIn,
           initialBinding: AppBinding(),
           themeMode: ThemeMode.system,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
+          theme: AppFlexTheme.light,
+          darkTheme: AppFlexTheme.dark,
           scrollBehavior: ScrollBehavior().copyWith(overscroll: false),
           navigatorKey: Get.key,
           getPages: AppPages.routes,

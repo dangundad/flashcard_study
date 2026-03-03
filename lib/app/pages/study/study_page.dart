@@ -12,7 +12,7 @@ class StudyPage extends GetView<StudyController> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -153,7 +153,7 @@ class _ProgressBar extends StatelessWidget {
 class _FlipPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     return Container(
       key: const ValueKey('prompt'),
       height: 112.h,
@@ -189,7 +189,7 @@ class _RatingButtons extends StatelessWidget {
             'how_well'.tr,
             style: TextStyle(
               fontSize: 13.sp,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: Get.theme.colorScheme.onSurfaceVariant,
             ),
           ),
           SizedBox(height: 10.h),
@@ -374,7 +374,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

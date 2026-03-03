@@ -17,7 +17,7 @@ class HomePage extends GetView<DeckController> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -206,7 +206,7 @@ class _TodaySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     final totalDue = controller.decks.fold<int>(
       0,
@@ -457,7 +457,7 @@ class _DeckCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     final total = controller.getTotalCount(deck.id);
     final due = controller.getDueCount(deck.id);
     final progress = controller.getProgress(deck.id);
@@ -674,7 +674,7 @@ class _DeckCard extends StatelessWidget {
               Get.back();
             },
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(Get.context!).colorScheme.error,
+              backgroundColor: Get.theme.colorScheme.error,
             ),
             child: Text('delete'.tr),
           ),
@@ -707,7 +707,7 @@ class _DeckDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     return AlertDialog(
       title: Text(title),
       content: ConstrainedBox(
@@ -788,7 +788,7 @@ class _TemplateSectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -831,7 +831,7 @@ class _TemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     final adManager = Get.isRegistered<RewardedAdManager>()
         ? RewardedAdManager.to
         : null;

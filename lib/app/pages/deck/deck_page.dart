@@ -46,7 +46,7 @@ class _DeckPageState extends State<_DeckPageContent> {
   @override
   Widget build(BuildContext context) {
     final deck = widget.controller.getDeck(deckId);
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -247,7 +247,7 @@ class _DeckPageState extends State<_DeckPageContent> {
               Get.back();
             },
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: Get.theme.colorScheme.error,
             ),
             child: Text('delete'.tr),
           ),
@@ -268,7 +268,7 @@ class _DeckStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     final due = controller.getDueCount(deckId);
     final total = controller.getTotalCount(deckId);
     final progress = controller.getProgress(deckId);
