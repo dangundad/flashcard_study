@@ -1,13 +1,16 @@
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:vibration/vibration.dart';
 
 import 'package:flashcard_study/app/admob/ads_interstitial.dart';
 import 'package:flashcard_study/app/controllers/deck_controller.dart';
+import 'package:flashcard_study/app/controllers/setting_controller.dart';
 import 'package:flashcard_study/app/data/models/flash_card.dart';
 import 'package:flashcard_study/app/services/hive_service.dart';
 
 class StudyController extends GetxController {
   static StudyController get to => Get.find();
+
+  bool _hasVibrator = false;
 
   final cards = <FlashCard>[].obs;
   final currentIndex = 0.obs;
@@ -18,6 +21,12 @@ class StudyController extends GetxController {
   final showConfetti = false.obs;
 
   String _deckId = '';
+
+  @override
+  void onInit() {
+    super.onInit();
+    Vibration.hasVibrator().then((v) => _hasVibrator = v);
+  }
 
   void startSession(String deckId) {
     _deckId = deckId;
@@ -43,7 +52,7 @@ class StudyController extends GetxController {
   int get remaining => cards.length - currentIndex.value;
 
   void flip() {
-    HapticFeedback.selectionClick();
+    if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 30);
     isFlipped.value = !isFlipped.value;
   }
 
@@ -52,10 +61,12 @@ class StudyController extends GetxController {
     final card = currentCard;
     if (card == null) return;
 
-    if (quality >= 2) {
-      HapticFeedback.lightImpact();
-    } else {
-      HapticFeedback.selectionClick();
+    if (SettingController.to.hapticEnabled.value && _hasVibrator) {
+      if (quality >= 2) {
+        Vibration.vibrate(duration: 50);
+      } else {
+        Vibration.vibrate(duration: 30);
+      }
     }
 
     card.applyReview(quality);
@@ -66,7 +77,7 @@ class StudyController extends GetxController {
 
     final next = currentIndex.value + 1;
     if (next >= cards.length) {
-      HapticFeedback.mediumImpact();
+      if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 100);
       isDone.value = true;
       showConfetti.value = true;
       HiveService.to.recordStudySession();
