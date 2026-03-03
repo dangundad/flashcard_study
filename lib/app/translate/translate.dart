@@ -77,6 +77,8 @@ class Languages extends Translations {
       'restore_error': 'Restore failed. Please try again.',
       'purchase_success': 'Purchase Completed',
       'premium_ready': 'Premium is now active.',
+      'dev_premium_on': '[DEV] Premium OFF → ON',
+      'dev_premium_off': '[DEV] Premium ON → OFF',
 
       // Feedback
       'send_feedback': 'Send Feedback',
@@ -213,6 +215,8 @@ class Languages extends Translations {
       'restore_error': '구매 복원에 실패했어요.',
       'purchase_success': '결제 완료',
       'premium_ready': '프리미엄이 활성화됐어요.',
+      'dev_premium_on': '[DEV] 프리미엄 OFF → ON',
+      'dev_premium_off': '[DEV] 프리미엄 ON → OFF',
       // 피드백
       'send_feedback': '피드백 보내기',
       'more_apps': '더 많은 앱',
