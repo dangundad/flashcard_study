@@ -151,7 +151,10 @@ class StatsController extends GetxController {
 
     for (final deck in dc.decks) {
       for (final card in dc.getCards(deck.id)) {
-        if (card.nextReview != null && card.repetitions > 0) {
+        // Include any card that has been reviewed at least once (nextReview set),
+        // regardless of repetition count (covers "Hard" on first review where
+        // repetitions stays 0 but the card was still studied).
+        if (card.nextReview != null) {
           final reviewedOn = _dateOnly(
             card.nextReview!.subtract(Duration(days: card.interval)),
           );

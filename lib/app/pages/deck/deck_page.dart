@@ -109,7 +109,7 @@ class _DeckPageState extends State<_DeckPageContent> {
 
                 return ListView.builder(
                   padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 24.h),
-                  itemCount: _cards.length + 3,
+                  itemCount: _cards.length + 2,
                   itemBuilder: (context, i) {
                     if (i == 0) {
                       return _DeckStats(
@@ -138,15 +138,12 @@ class _DeckPageState extends State<_DeckPageContent> {
                       );
                     }
                     final cardIndex = i - 2;
-                    if (cardIndex < _cards.length) {
-                      final card = _cards[cardIndex];
-                      return CardItem(
-                        card: card,
-                        onEdit: () => _showEditCardDialog(card),
-                        onDelete: () => _deleteCard(card),
-                      );
-                    }
-                    return const SizedBox.shrink();
+                    final card = _cards[cardIndex];
+                    return CardItem(
+                      card: card,
+                      onEdit: () => _showEditCardDialog(card),
+                      onDelete: () => _deleteCard(card),
+                    );
                   },
                 );
               }),

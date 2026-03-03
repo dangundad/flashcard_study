@@ -18,9 +18,14 @@ class StudyPage extends GetView<StudyController> {
       backgroundColor: cs.surface,
       appBar: AppBar(
         title: Obx(
-          () => Text(
-            '${'studying'.tr} ${controller.currentIndex.value + 1}/${controller.cards.length}',
-          ),
+          () {
+            if (controller.isDone.value || controller.cards.isEmpty) {
+              return Text('session_done'.tr);
+            }
+            return Text(
+              '${'studying'.tr} ${controller.currentIndex.value + 1}/${controller.cards.length}',
+            );
+          },
         ),
         centerTitle: true,
       ),

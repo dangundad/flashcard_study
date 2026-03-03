@@ -28,8 +28,11 @@ class StudyController extends GetxController {
     isFlipped.value = false;
     sessionCorrect.value = 0;
     sessionTotal.value = 0;
-    isDone.value = false;
     showConfetti.value = false;
+
+    // If no cards are due, mark session as done immediately so the UI
+    // shows the completion screen instead of a blank/stuck state.
+    isDone.value = due.isEmpty;
   }
 
   FlashCard? get currentCard {
@@ -73,7 +76,26 @@ class StudyController extends GetxController {
     }
   }
 
-  void restartSession() => startSession(_deckId);
+  /// Restart the session.  When the previous session reviewed all due cards,
+  /// getDueCards returns empty, so we fall back to ALL cards in the deck so
+  /// the user can keep practicing without being stuck on the done-screen.
+  void restartSession() {
+    final due = DeckController.to.getDueCards(_deckId);
+    if (due.isEmpty) {
+      // All cards just reviewed — use full deck as fallback so user can retry.
+      final all = DeckController.to.getCards(_deckId);
+      all.shuffle();
+      cards.value = all;
+      currentIndex.value = 0;
+      isFlipped.value = false;
+      sessionCorrect.value = 0;
+      sessionTotal.value = 0;
+      isDone.value = all.isEmpty;
+      showConfetti.value = false;
+    } else {
+      startSession(_deckId);
+    }
+  }
 
   double get accuracy {
     if (sessionTotal.value == 0) return 0;

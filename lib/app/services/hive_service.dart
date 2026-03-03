@@ -132,6 +132,8 @@ class HiveService extends GetxService {
     await Future.wait([
       settingsBox.clear(),
       appDataBox.clear(),
+      decksBox.clear(),
+      cardsBox.clear(),
     ]);
     Get.log('모든 데이터 삭제 완료');
   }
