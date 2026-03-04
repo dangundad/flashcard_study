@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:flashcard_study/app/admob/ads_banner.dart';
 import 'package:flashcard_study/app/admob/ads_helper.dart';
@@ -52,6 +53,9 @@ class _DeckPageState extends State<_DeckPageContent> {
       backgroundColor: cs.surface,
       appBar: AppBar(
         title: Text(deck?.title ?? 'deck'.tr),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: cs.surface,
         actions: [
           IconButton(
             icon: const Icon(Icons.add_rounded),
@@ -175,58 +179,128 @@ class _DeckPageState extends State<_DeckPageContent> {
   void _showAddCardDialog({FlashCard? editing}) {
     final frontCtrl = TextEditingController(text: editing?.front ?? '');
     final backCtrl = TextEditingController(text: editing?.back ?? '');
+    final cs = Get.theme.colorScheme;
 
     Get.dialog(
-      AlertDialog(
-        title: Text(editing == null ? 'add_card'.tr : 'edit_card'.tr),
-        content: Column(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: frontCtrl,
-              decoration: InputDecoration(
-                labelText: 'front'.tr,
-                border: const OutlineInputBorder(),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [cs.primaryContainer, cs.primary.withValues(alpha: 0.3)],
+                ),
               ),
-              maxLines: 2,
-              autofocus: true,
+              child: Center(
+                child: Container(
+                  width: 52.r,
+                  height: 52.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: cs.primary.withValues(alpha: 0.15),
+                  ),
+                  child: Icon(LucideIcons.creditCard, size: 26.r, color: cs.primary),
+                ),
+              ),
             ),
-            SizedBox(height: 12.h),
-            TextField(
-              controller: backCtrl,
-              decoration: InputDecoration(
-                labelText: 'back'.tr,
-                border: const OutlineInputBorder(),
+            Padding(
+              padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 8.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    editing == null ? 'add_card'.tr : 'edit_card'.tr,
+                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(height: 16.h),
+                  TextField(
+                    controller: frontCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'front'.tr,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    maxLines: 2,
+                    autofocus: true,
+                  ),
+                  SizedBox(height: 12.h),
+                  TextField(
+                    controller: backCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'back'.tr,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    maxLines: 2,
+                  ),
+                ],
               ),
-              maxLines: 2,
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text('cancel'.tr),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [cs.primary, cs.tertiary]),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () async {
+                            final f = frontCtrl.text.trim();
+                            final b = backCtrl.text.trim();
+                            if (f.isEmpty || b.isEmpty) return;
+                            if (editing == null) {
+                              await widget.controller.addCard(
+                                deckId: deckId,
+                                front: f,
+                                back: b,
+                              );
+                            } else {
+                              await widget.controller.updateCard(editing, front: f, back: b);
+                            }
+                            _loadCards();
+                            Get.back();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            child: Center(
+                              child: Text(
+                                'save'.tr,
+                                style: TextStyle(
+                                  color: cs.onPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('cancel'.tr),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final f = frontCtrl.text.trim();
-              final b = backCtrl.text.trim();
-              if (f.isEmpty || b.isEmpty) return;
-              if (editing == null) {
-                await widget.controller.addCard(
-                  deckId: deckId,
-                  front: f,
-                  back: b,
-                );
-              } else {
-                await widget.controller.updateCard(editing, front: f, back: b);
-              }
-              _loadCards();
-              Get.back();
-            },
-            child: Text('save'.tr),
-          ),
-        ],
       ),
     );
   }
@@ -234,24 +308,100 @@ class _DeckPageState extends State<_DeckPageContent> {
   void _showEditCardDialog(FlashCard card) => _showAddCardDialog(editing: card);
 
   void _deleteCard(FlashCard card) {
+    final cs = Get.theme.colorScheme;
     Get.dialog(
-      AlertDialog(
-        title: Text('delete_card'.tr),
-        content: Text('delete_card_confirm'.tr),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
-          FilledButton(
-            onPressed: () async {
-              await widget.controller.deleteCard(card);
-              _loadCards();
-              Get.back();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Get.theme.colorScheme.error,
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [cs.errorContainer, cs.error.withValues(alpha: 0.3)],
+                ),
+              ),
+              child: Center(
+                child: Container(
+                  width: 52.r,
+                  height: 52.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: cs.error.withValues(alpha: 0.15),
+                  ),
+                  child: Icon(LucideIcons.trash2, size: 26.r, color: cs.error),
+                ),
+              ),
             ),
-            child: Text('delete'.tr),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 8.h),
+              child: Column(
+                children: [
+                  Text(
+                    'delete_card'.tr,
+                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'delete_card_confirm'.tr,
+                    style: TextStyle(fontSize: 14.sp, color: cs.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text('cancel'.tr),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [cs.error, cs.errorContainer],
+                        ),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () async {
+                            await widget.controller.deleteCard(card);
+                            _loadCards();
+                            Get.back();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            child: Center(
+                              child: Text(
+                                'delete'.tr,
+                                style: TextStyle(
+                                  color: cs.onError,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
