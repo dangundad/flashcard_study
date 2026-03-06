@@ -1,8 +1,6 @@
 ﻿// ================================================
 // DangunDad Flutter App - translate.dart Template
 // ================================================
-// mbti_pro ?꾨줈?뺤뀡 ?⑦꽩 湲곕컲
-// 媛쒕컻 ???쒓뎅??ko)留??뺤쓽, ?ㅺ뎅?대뒗 異뷀썑 異붽?
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
