@@ -15,11 +15,13 @@ class SettingController extends GetxController {
   static const String _kHapticKey = 'haptic_enabled';
   static const String _kAdsKey = 'ads_consent';
   static const String _kLanguageKey = 'language';
+  static const String _kDarkModeKey = 'dark_mode';
 
   final RxBool soundEnabled = true.obs;
   final RxBool hapticEnabled = true.obs;
   final RxBool adsConsent = true.obs;
   final RxString language = 'en'.obs;
+  final RxBool isDarkMode = false.obs;
 
   @override
   void onInit() {
@@ -40,7 +42,9 @@ class SettingController extends GetxController {
     hapticEnabled.value = _readBool(box, _kHapticKey, true);
     adsConsent.value = _readBool(box, _kAdsKey, true);
     language.value = _readString(box, _kLanguageKey, 'en');
+    isDarkMode.value = _readBool(box, _kDarkModeKey, false);
     Get.updateLocale(language.value == 'ko' ? const Locale('ko') : const Locale('en'));
+    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> setSoundEnabled(bool value) async {
@@ -68,6 +72,14 @@ class SettingController extends GetxController {
     Get.updateLocale(value == 'ko' ? const Locale('ko') : const Locale('en'));
   }
 
+  Future<void> toggleDarkMode() async {
+    final newValue = !isDarkMode.value;
+    final box = await _openSettingBox();
+    await box.put(_kDarkModeKey, newValue);
+    isDarkMode.value = newValue;
+    Get.changeThemeMode(newValue ? ThemeMode.dark : ThemeMode.light);
+  }
+
   Future<void> clearAppSettings() async {
     final box = await _openSettingBox();
     await box.clear();
@@ -75,7 +87,9 @@ class SettingController extends GetxController {
     hapticEnabled.value = true;
     adsConsent.value = true;
     language.value = 'en';
+    isDarkMode.value = false;
     Get.updateLocale(const Locale('en'));
+    Get.changeThemeMode(ThemeMode.light);
   }
 
   void logEvent(
