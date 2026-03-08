@@ -1,108 +1,70 @@
-# CLAUDE.md - Flashcard Study
+# Flashcard Study 개발 가이드
 
-## 프로젝트 개요
-플래시카드 학습 앱. 덱 기반 카드 생성, 3D 플립 애니메이션, SM-2 간격 반복 알고리즘을 활용한 효율적 암기 도구.
-- **패키지명**: `com.dangundad.flashcardstudy`
-- **퍼블리셔**: DangunDad
-- **수익 모델**: 완전 무료 + AdMob 광고 (배너 + 전면 + 보상형)
+> 문서: `CLAUDE.md`
+> This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> 최종 업데이트: 2026-03-08
+> 기준: 현재 앱 저장소 스캔 + `C:\Flutter_WorkSpace\Flutter_Plan\AGENTS.md` 포트폴리오 상태표
 
-## 기술 스택
-- **Flutter** 3.x / Dart 3.8+
-- **상태 관리**: GetX (`GetxController`, `.obs`, `Obx()`)
-- **로컬 저장**: Hive_CE (`@HiveType` 어댑터 - FlashDeck, FlashCard)
-- **UI**: flutter_screenutil, flex_color_scheme (FlexScheme.purpleM3), google_fonts, lucide_icons_flutter
-- **차트**: fl_chart (학습 통계)
-- **광고**: google_mobile_ads + AppLovin/Pangle/Unity 미디에이션
-- **기타**: vibration, flutter_animate, firebase_core/analytics/crashlytics, in_app_purchase, in_app_review
+## 프로젝트 요약
+- 앱 번호: 35
+- Phase: 4
+- 상태: ✅ 기능구현
+- 난이도: ★★☆
+- 광고 등급: 중상
+- 프로젝트 폴더: `flashcard_study`
+- `pubspec` 이름: `flashcard_study`
+- Android 패키지: `com.dangundad.flashcardstudy`
+- 버전: `1.0.0+1`
+- 핵심 기능: 덱 생성, 카드 3D 플립, 스페이스드 리피티션, Hive 저장
 
-## 개발 명령어
+## 공통 작업 원칙
+- 모든 텍스트 파일은 UTF-8로 유지하고, PowerShell에서 파일을 쓸 때는 `-Encoding UTF8`을 명시합니다.
+- AI/코드 어시스턴트의 설명, 진행 업데이트, 최종 답변은 기본적으로 한국어로 작성합니다.
+- Android 우선 프로젝트이며, 별도 요청 없이 iOS 전용 코드는 추가하지 않습니다.
+- 릴리스 빌드는 실행하지 않습니다. 일반 작업에서는 `flutter build apk`/`flutter build ios`를 사용하지 않습니다.
+- 코드 변경 후에는 반드시 `flutter analyze`와 `flutter test`를 실행해 결과를 확인합니다.
+- Hive `@HiveType` 모델을 추가하거나 수정했다면 `dart run build_runner build --delete-conflicting-outputs`를 실행합니다.
+- 상태 관리는 GetX, 로컬 저장은 Hive_CE 패턴을 유지하고 기존 네비게이션/영속성 구조를 임의로 바꾸지 않습니다.
+- Windows 표준 경로를 사용하고 WSL 경로(`/mnt/c/...`)는 사용하지 않습니다.
+- `2>nul`, `>nul` 리다이렉션은 사용하지 않으며, `nul` 파일이 생기면 정리합니다.
+
+## 빠른 명령어
 ```bash
+cd C:\Flutter_WorkSpace\flashcard_study
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 flutter analyze
+flutter test
 flutter run
 ```
 
-## 아키텍처 (프로젝트 구조)
-```
-lib/
-├── main.dart                          # 앱 진입점
-├── hive_registrar.g.dart              # Hive 어댑터 등록
-├── app/
-│   ├── admob/                         # 광고 (배너/전면/보상형)
-│   ├── bindings/app_binding.dart      # GetX 바인딩
-│   ├── controllers/
-│   │   ├── deck_controller.dart       # 덱/카드 CRUD 관리
-│   │   ├── study_controller.dart      # 학습 세션 진행
-│   │   ├── history_controller.dart    # 기록 관리
-│   │   ├── home_controller.dart       # 홈 화면
-│   │   ├── premium_controller.dart    # 프리미엄
-│   │   ├── setting_controller.dart    # 설정
-│   │   └── stats_controller.dart      # 통계
-│   ├── data/
-│   │   ├── deck_templates.dart        # 기본 덱 템플릿 데이터
-│   │   └── models/
-│   │       ├── flash_card.dart        # 카드 모델 (SM-2 로직 포함)
-│   │       ├── flash_card.g.dart
-│   │       ├── flash_deck.dart        # 덱 모델
-│   │       └── flash_deck.g.dart
-│   ├── pages/
-│   │   ├── deck/
-│   │   │   ├── deck_page.dart         # 덱 상세 (카드 목록)
-│   │   │   └── widgets/card_item.dart # 카드 아이템 위젯
-│   │   ├── study/
-│   │   │   ├── study_page.dart        # 학습 화면
-│   │   │   └── widgets/flip_card_widget.dart # 3D 플립 카드
-│   │   ├── history/history_page.dart
-│   │   ├── home/home_page.dart
-│   │   ├── premium/
-│   │   ├── settings/settings_page.dart
-│   │   └── stats/stats_page.dart
-│   ├── routes/
-│   ├── services/
-│   │   ├── activity_log_service.dart
-│   │   ├── app_rating_service.dart
-│   │   ├── hive_service.dart          # Hive 서비스 (덱/카드 박스, 학습 세션 기록)
-│   │   └── purchase_service.dart
-│   ├── theme/app_flex_theme.dart
-│   ├── translate/translate.dart
-│   ├── utils/app_constants.dart
-│   └── widgets/confetti_overlay.dart
-```
+## 현재 의존성 하이라이트
+- 기반: `get` ^4.7.3, `hive_ce` ^2.19.3, `hive_ce_flutter` ^2.3.4, `path_provider` ^2.1.5, `intl` ^0.20.2, `uuid` ^4.5.3
+- UI/UX: `flutter_screenutil` ^5.9.3, `flex_color_scheme` ^8.4.0, `google_fonts` ^6.3.2, `lucide_icons_flutter` ^3.1.10, `flutter_animate` ^4.5.2, `fl_chart` ^0.70.2
+- 수익화/운영: `google_mobile_ads` ^6.0.0, `gma_mediation_applovin` ^2.5.1, `gma_mediation_pangle` ^3.5.0, `gma_mediation_unity` ^1.6.2, `in_app_purchase` ^3.2.3, `in_app_review` ^2.0.11, `rate_my_app` ^2.3.2, `firebase_core` ^4.4.0, `firebase_analytics` ^12.1.2, `firebase_crashlytics` ^5.0.7, `device_info_plus` ^12.3.0, `package_info_plus` ^9.0.0, `permission_handler` ^12.0.1, `share_plus` ^12.0.1, `url_launcher` ^6.3.2, `wakelock_plus` ^1.4.0, `vibration` ^3.1.8
 
-## 데이터 모델
-### FlashDeck (HiveType, typeId: 0)
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | String | 덱 고유 ID |
-| title | String | 덱 제목 |
-| description | String | 덱 설명 |
-| createdAt | DateTime | 생성일 |
+## 현재 코드 구조
+- `lib/app` 디렉터리: `admob`, `bindings`, `controllers`, `data`, `pages`, `routes`, `services`, `theme`, `translate`, `utils`, `widgets`
+- `bindings`: `app_binding.dart`
+- `routes`: `app_pages.dart`, `app_routes.dart`
+- `controllers`: `deck_controller.dart`, `history_controller.dart`, `home_controller.dart`, `premium_controller.dart`, `setting_controller.dart`, `stats_controller.dart`, `study_controller.dart`
+- 기능 중심 컨트롤러: `deck_controller`, `study_controller`
+- `services`: `activity_log_service.dart`, `app_rating_service.dart`, `hive_service.dart`, `purchase_service.dart`
+- 기능 중심 서비스: 없음
+- `pages`: `deck`, `history`, `home`, `premium`, `settings`, `stats`, `study`
+- `widgets`: `confetti_overlay.dart`
+- `mixins`: 없음
+- `utils`: `app_constants.dart`
+- `translate`: `translate.dart`
+- `theme`: `app_flex_theme.dart`
+- `data/models`: `flash_card.dart`, `flash_card.g.dart`, `flash_deck.dart`, `flash_deck.g.dart`
+- `data/enums`: 없음
+- `data/constants`: 없음
+- `data` 루트 파일: `deck_templates.dart`
+- `assets`: `data`, `fonts`, `images`
+- `tests`: 1개: `test/widget_test.dart`
 
-### FlashCard (HiveType, typeId: 1)
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | String | 카드 고유 ID |
-| deckId | String | 소속 덱 ID |
-| front | String | 앞면 텍스트 |
-| back | String | 뒷면 텍스트 |
-| interval | int | 다음 복습까지 일수 |
-| easeFactor | double | SM-2 난이도 계수 (기본 2.5) |
-| repetitions | int | 연속 정답 횟수 |
-| nextReview | DateTime? | 다음 복습 예정일 |
-| createdAt | DateTime | 생성일 |
-
-## SM-2 간격 반복 알고리즘
-카드 평가 시 quality (0~3):
-- **0 (Again)**: 완전 초기화, interval=1, easeFactor -0.2
-- **1 (Hard)**: 부분 점수, repetitions>0이면 interval x1.2
-- **2 (Good)**: rep0=1일, rep1=6일, rep2+=interval x easeFactor
-- **3 (Easy)**: rep0=4일, rep1=10일, rep2+=interval x easeFactor + 2, easeFactor +0.15
-- isDue: nextReview가 null이거나 현재 시각 이전이면 복습 대상
-- isMastered: interval >= 21일 && repetitions >= 3
-
-## 개발 가이드라인
-- 카드 삭제 중 학습 진행 시 `isInBox` 체크 후 `save()` 호출
-- 학습 세션 완료 시 `HiveService.to.recordStudySession()` 호출
-- 복습 대상 카드가 없으면 전체 카드로 폴백하여 재학습 가능
-- 덱 템플릿: `deck_templates.dart`에 기본 샘플 덱 데이터 정의
+## 문서 유지 규칙
+- 새 페이지나 바인딩을 추가하면 이 문서의 `pages`/`bindings` 요약도 함께 갱신합니다.
+- 의존성 추가/제거, Android 패키지명 변경, 테스트 확장은 이 문서에 바로 반영합니다.
+- 포트폴리오 상태가 바뀌면 메타 레포 `AGENTS.md`, `CLAUDE.md`, 관련 `docs/*.md`와 함께 동기화합니다.
