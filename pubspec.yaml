@@ -1,4 +1,4 @@
-﻿# ================================================
+# ================================================
 # DangunDad Flutter App - pubspec.yaml Template
 # ================================================
 # ?ъ슜踰? ???꾨줈?앺듃?????댁슜??蹂듭궗 ??flashcard_study, Study with flashcards and spaced repetition 移섑솚
@@ -25,11 +25,11 @@ dependencies:
   # UI
   flutter_screenutil: ^5.9.3
   flex_color_scheme: ^8.4.0
-  google_fonts: ^6.3.2
+  google_fonts: ^8.0.2
   lucide_icons_flutter: ^3.1.10
 
   # 愿묎퀬
-  google_mobile_ads: ^6.0.0
+  google_mobile_ads: ^7.0.0
   in_app_purchase: ^3.2.3
 
   # ?좏떥由ы떚
@@ -37,7 +37,7 @@ dependencies:
   share_plus: ^12.0.1
 
   # ---- ?깅퀎 異붽? ?⑦궎吏 (?꾩슂???꾨옒 二쇱꽍 ?댁젣) ----
-  # fl_chart: ^0.70.2              # 李⑦듃 (媛怨꾨?, ?듦?, ?듦퀎)
+  # fl_chart: ^1.1.1              # 李⑦듃 (媛怨꾨?, ?듦?, ?듦퀎)
   # flutter_local_notifications:    # ?뚮┝ (??대㉧, 由щ쭏?몃뜑)
   # just_audio: ^0.9.42            # ?ㅻ뵒???ъ깮 (?섎㈃ ?ъ슫??
   # mobile_scanner: ^6.0.5         # QR/諛붿퐫???ㅼ틪
@@ -50,10 +50,9 @@ dependencies:
   firebase_core: ^4.4.0
   firebase_crashlytics: ^5.0.7
   flutter_animate: ^4.5.2
-  fl_chart: ^0.70.2
-  gma_mediation_applovin: ^2.5.1
-  gma_mediation_pangle: ^3.5.0
-  gma_mediation_unity: ^1.6.2
+  fl_chart: ^1.1.1
+  gma_mediation_pangle: ^3.5.2
+  gma_mediation_unity: ^1.6.4
   in_app_review: ^2.0.11
   package_info_plus: ^9.0.0
   permission_handler: ^12.0.1
@@ -86,3 +85,5 @@ flutter:
       fonts:
         - asset: assets/fonts/NotoSans-Bold.ttf
           weight: 700
+
+
