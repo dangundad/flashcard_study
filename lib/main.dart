@@ -1,4 +1,4 @@
-﻿// ================================================
+// ================================================
 // DangunDad Flutter App - main.dart Template
 // ================================================
 
@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:flashcard_study/app/admob/ads_helper.dart';
 import 'package:flashcard_study/app/bindings/app_binding.dart';
@@ -32,14 +31,16 @@ Future<void> main() async {
   ]);
 
   try {
-    await AdHelper.initializeAdConsent();
-
-    MobileAds.instance.initialize().then((status) {
-      status.adapterStatuses.forEach((key, value) {
+    final canRequestAds = await AdHelper.initializeConsentAndAds();
+    if (canRequestAds) {
+      final status = await AdHelper.currentInitializationStatus();
+      status?.adapterStatuses.forEach((key, value) {
         debugPrint('Adapter status for $key: ${value.description}');
       });
-    });
-    debugPrint('AdMob initialized successfully');
+      debugPrint('AdMob initialized successfully');
+    } else {
+      debugPrint('AdMob initialization skipped until consent is available');
+    }
   } catch (e) {
     debugPrint('AdMob initialization failed: $e');
   }
