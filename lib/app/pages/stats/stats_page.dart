@@ -45,7 +45,7 @@ class StatsPage extends GetView<StatsController> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => controller.refresh(),
+                      onPressed: () => controller.refreshStats(),
                       tooltip: 'refresh'.tr,
                       icon: Icon(
                         Icons.refresh,
@@ -58,7 +58,7 @@ class StatsPage extends GetView<StatsController> {
               ),
               Expanded(
                 child: RefreshIndicator(
-                  onRefresh: () => controller.refresh(),
+                  onRefresh: () => controller.refreshStats(),
                   color: cs.primary,
                   child: Obx(
                     () => ListView(

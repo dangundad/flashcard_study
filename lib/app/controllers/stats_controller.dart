@@ -45,23 +45,25 @@ class StatsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    refresh();
+    refreshStats();
   }
 
-  @override
-  Future<void> refresh() async {
+  Future<void> refreshStats() async {
     _computeStreak();
     _computeDeckStats();
     _computeWeeklyData();
   }
 
   void _computeStreak() {
-    final dates = HiveService.to.getStudyDates();
-    if (dates.isEmpty) {
+    final rawDates = HiveService.to.getStudyDates();
+    if (rawDates.isEmpty) {
       currentStreak.value = 0;
       longestStreak.value = 0;
       return;
     }
+
+    // Deduplicate dates (same day may be recorded multiple times)
+    final dates = rawDates.map(_dateOnly).toSet().toList()..sort();
 
     final today = _dateOnly(DateTime.now());
     final yesterday = today.subtract(const Duration(days: 1));
@@ -91,9 +93,10 @@ class StatsController extends GetxController {
       if (diff == 1) {
         current++;
         if (current > longest) longest = current;
-      } else {
+      } else if (diff > 1) {
         current = 1;
       }
+      // diff == 0 means duplicate date (should not happen after dedup, but safe guard)
     }
     longestStreak.value = longest;
   }
@@ -129,21 +132,9 @@ class StatsController extends GetxController {
   }
 
   void _computeWeeklyData() {
-    // We use FlashCard nextReview update pattern:
-    // Cards studied today have their nextReview set to today+interval.
-    // We track study dates from HiveService.
-    final studyDates = HiveService.to.getStudyDates();
     final today = _dateOnly(DateTime.now());
 
-    // Build a map of date -> studied count using FlashCard.repetitions changes
-    // Since we don't store per-day card counts, we use study date presence
-    // as a binary signal per deck session. For weekly bars, count sessions per day.
-    final Map<DateTime, int> dateSessionCount = {};
-    for (final d in studyDates) {
-      dateSessionCount[d] = (dateSessionCount[d] ?? 0) + 1;
-    }
-
-    // For a more useful chart, count cards reviewed per day using nextReview dates.
+    // Count cards reviewed per day using nextReview dates.
     // Cards that were reviewed on day D have nextReview set to D+interval.
     // We approximate: if card's nextReview - interval = D, it was reviewed on D.
     final dc = Get.find<DeckController>();

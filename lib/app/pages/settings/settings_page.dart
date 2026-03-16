@@ -12,7 +12,7 @@ class SettingsPage extends GetView<SettingController> {
 
   static const Map<String, String> _languageOptions = {
     'en': 'English',
-    'ko': '한굵어',
+    'ko': '한국어',
   };
 
   @override

@@ -173,7 +173,7 @@ class _DeckPageState extends State<_DeckPageContent> {
 
   void _startStudy() {
     StudyController.to.startSession(deckId);
-    Get.toNamed(Routes.STUDY);
+    Get.toNamed(Routes.STUDY)?.then((_) => _loadCards());
   }
 
   void _showAddCardDialog({FlashCard? editing}) {
@@ -249,7 +249,11 @@ class _DeckPageState extends State<_DeckPageContent> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () => Get.back(),
+                      onPressed: () {
+                        frontCtrl.dispose();
+                        backCtrl.dispose();
+                        Get.back();
+                      },
                       child: Text('cancel'.tr),
                     ),
                   ),
@@ -278,6 +282,8 @@ class _DeckPageState extends State<_DeckPageContent> {
                               await widget.controller.updateCard(editing, front: f, back: b);
                             }
                             _loadCards();
+                            frontCtrl.dispose();
+                            backCtrl.dispose();
                             Get.back();
                           },
                           child: Padding(

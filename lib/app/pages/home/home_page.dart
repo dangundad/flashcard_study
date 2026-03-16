@@ -190,6 +190,13 @@ class HomePage extends GetView<DeckController> {
               description: descCtrl.text.trim(),
             );
           }
+          titleCtrl.dispose();
+          descCtrl.dispose();
+          Get.back();
+        },
+        onCancel: () {
+          titleCtrl.dispose();
+          descCtrl.dispose();
           Get.back();
         },
       ),
@@ -654,6 +661,13 @@ class _DeckCard extends StatelessWidget {
             title: t,
             description: descCtrl.text.trim(),
           );
+          titleCtrl.dispose();
+          descCtrl.dispose();
+          Get.back();
+        },
+        onCancel: () {
+          titleCtrl.dispose();
+          descCtrl.dispose();
           Get.back();
         },
       ),
@@ -770,6 +784,7 @@ class _DeckDialog extends StatelessWidget {
   final String descHint;
   final String confirmText;
   final VoidCallback onConfirm;
+  final VoidCallback? onCancel;
 
   const _DeckDialog({
     required this.titleController,
@@ -779,6 +794,7 @@ class _DeckDialog extends StatelessWidget {
     required this.descHint,
     required this.confirmText,
     required this.onConfirm,
+    this.onCancel,
   });
 
   @override
@@ -846,7 +862,7 @@ class _DeckDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () => Get.back(),
+                    onPressed: onCancel ?? () => Get.back(),
                     child: Text('cancel'.tr),
                   ),
                 ),

@@ -42,6 +42,10 @@ class _FlipCardWidgetState extends State<FlipCardWidget>
   @override
   void didUpdateWidget(FlipCardWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // When the card content changes (next card), reset animation immediately
+    if (widget.front != oldWidget.front || widget.back != oldWidget.back) {
+      _controller.reset();
+    }
     if (widget.isFlipped != oldWidget.isFlipped) {
       if (widget.isFlipped) {
         _controller.forward();

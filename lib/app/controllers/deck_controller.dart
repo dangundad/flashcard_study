@@ -43,14 +43,12 @@ class DeckController extends GetxController {
   }
 
   Future<void> deleteDeck(String deckId) async {
-    // Delete all cards in deck
+    // Delete all cards in deck (batch)
     final cardKeys = HiveService.to.cardsBox.values
         .where((c) => c.deckId == deckId)
         .map((c) => c.id)
         .toList();
-    for (final key in cardKeys) {
-      await HiveService.to.cardsBox.delete(key);
-    }
+    await HiveService.to.cardsBox.deleteAll(cardKeys);
     await HiveService.to.decksBox.delete(deckId);
     _loadDecks();
   }
