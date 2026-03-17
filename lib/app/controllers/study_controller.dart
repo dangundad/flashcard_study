@@ -73,6 +73,24 @@ class StudyController extends GetxController {
     sessionTotal.value++;
     if (quality >= 2) sessionCorrect.value++;
 
+    // "Again" cards should be retried within the current session.
+    // Re-insert the card near the end of the queue so the user sees it
+    // again before the session finishes.
+    if (quality == 0 && cards.length > 1) {
+      // Build a new list to avoid two separate RxList mutations that could
+      // trigger an intermediate rebuild with an out-of-bounds index.
+      final updated = List<FlashCard>.from(cards);
+      final removed = updated.removeAt(currentIndex.value);
+      // Place it 3-5 cards later (or at the end if fewer remain).
+      final reinsertOffset = (updated.length - currentIndex.value).clamp(0, 4);
+      final reinsertIndex = (currentIndex.value + reinsertOffset).clamp(0, updated.length);
+      updated.insert(reinsertIndex, removed);
+      cards.value = updated;
+      // currentIndex stays the same -> next card is already at this index.
+      isFlipped.value = false;
+      return;
+    }
+
     isFlipped.value = false;
 
     final next = currentIndex.value + 1;

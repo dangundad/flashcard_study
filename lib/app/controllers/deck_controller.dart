@@ -104,8 +104,17 @@ class DeckController extends GetxController {
 
   // ─── Template operations ──────────────────────────────────
 
+  /// 이미 설치된 템플릿인지 확인
+  bool isTemplateInstalled(String templateId) {
+    return HiveService.to.appDataBox.get('tpl_installed_$templateId') == true;
+  }
+
   /// 보상형 광고 시청 후 템플릿 덱 추가
   void addTemplateWithAd(DeckTemplate template) {
+    if (isTemplateInstalled(template.id)) {
+      Get.snackbar('templates'.tr, 'template_already_installed'.tr);
+      return;
+    }
     final adManager = Get.isRegistered<RewardedAdManager>()
         ? RewardedAdManager.to
         : null;
@@ -140,6 +149,7 @@ class DeckController extends GetxController {
       await HiveService.to.cardsBox.put(card.id, card);
       offset++;
     }
+    await HiveService.to.appDataBox.put('tpl_installed_${template.id}', true);
     _loadDecks();
     Get.snackbar('success'.tr, template.titleKey.tr);
   }

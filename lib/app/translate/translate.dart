@@ -177,6 +177,7 @@ class Languages extends Translations {
 
       // Interval preview on rating buttons
       'interval_day': '@{n}d',
+      'template_already_installed': 'This template has already been added.',
     },
     'ko': {
       // 공통
@@ -339,6 +340,7 @@ class Languages extends Translations {
 
       // 평가 버튼 인터벌 미리보기
       'interval_day': '@{n}일',
+      'template_already_installed': '이미 추가된 템플릿입니다.',
     },
   };
 }
