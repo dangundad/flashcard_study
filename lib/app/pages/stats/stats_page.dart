@@ -293,11 +293,20 @@ class _WeeklyChart extends StatelessWidget {
   final StatsController controller;
   const _WeeklyChart({required this.cs, required this.controller});
 
-  static const _days = ['6d', '5d', '4d', '3d', '2d', 'Yst', 'Today'];
+  static List<String> get _days => [
+        'chart_6d'.tr,
+        'chart_5d'.tr,
+        'chart_4d'.tr,
+        'chart_3d'.tr,
+        'chart_2d'.tr,
+        'chart_yesterday'.tr,
+        'chart_today'.tr,
+      ];
 
   @override
   Widget build(BuildContext context) {
     final data = controller.weeklyData;
+    final days = _days;
     final maxVal = data.fold(0, (prev, e) => e > prev ? e : prev);
     final chartMax = maxVal < 5 ? 5.0 : (maxVal * 1.2);
 
@@ -335,14 +344,14 @@ class _WeeklyChart extends StatelessWidget {
                 reservedSize: 24.h,
                 getTitlesWidget: (value, meta) {
                   final idx = value.toInt();
-                  if (idx < 0 || idx >= _days.length) {
+                  if (idx < 0 || idx >= days.length) {
                     return const SizedBox.shrink();
                   }
                   final isToday = idx == 6;
                   return Padding(
                     padding: EdgeInsets.only(top: 4.h),
                     child: Text(
-                      _days[idx],
+                      days[idx],
                       style: TextStyle(
                         fontSize: 9.sp,
                         color: isToday

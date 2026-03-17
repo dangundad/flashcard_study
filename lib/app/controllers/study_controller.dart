@@ -81,6 +81,7 @@ class StudyController extends GetxController {
       isDone.value = true;
       showConfetti.value = true;
       HiveService.to.recordStudySession();
+      HiveService.to.addDailyStudyCount(sessionTotal.value);
       InterstitialAdManager.to.showAdIfAvailable();
     } else {
       currentIndex.value = next;

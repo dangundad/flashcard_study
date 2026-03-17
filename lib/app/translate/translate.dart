@@ -151,6 +151,32 @@ class Languages extends Translations {
       'get_item_ad': 'Watch Ad',
       'add_with_ad': 'Add (Watch Ad)',
       'template_preview': 'Preview',
+
+      // Settings missing keys
+      'sound': 'Sound',
+      'sound_desc': 'Play sound effects',
+      'haptic': 'Haptic feedback',
+      'haptic_desc': 'Vibrate for interactions',
+      'ads_consent': 'Advertising consent',
+      'ads_consent_desc': 'Use ad personalization preference',
+      'dark_mode_desc': 'Use dark theme',
+      'clear_data': 'Clear local data',
+      'clear_data_desc': 'Reset sound, haptic, consent, language and history logs.',
+      'clear_data_confirm': 'This removes all local settings and logs. Continue?',
+      'clear_data_complete': 'All local data has been reset.',
+      'confirm': 'Confirm',
+
+      // Weekly chart i18n
+      'chart_6d': '6d',
+      'chart_5d': '5d',
+      'chart_4d': '4d',
+      'chart_3d': '3d',
+      'chart_2d': '2d',
+      'chart_yesterday': 'Yst',
+      'chart_today': 'Today',
+
+      // Interval preview on rating buttons
+      'interval_day': '@{n}d',
     },
     'ko': {
       // 공통
@@ -287,6 +313,32 @@ class Languages extends Translations {
       'get_item_ad': '광고 보기',
       'add_with_ad': '추가 (광고 보기)',
       'template_preview': '미리보기',
+
+      // 설정 누락 키
+      'sound': '소리',
+      'sound_desc': '효과음 재생',
+      'haptic': '햅틱 피드백',
+      'haptic_desc': '상호작용 시 진동',
+      'ads_consent': '광고 동의',
+      'ads_consent_desc': '맞춤 광고 사용',
+      'dark_mode_desc': '어두운 테마 사용',
+      'clear_data': '로컬 데이터 초기화',
+      'clear_data_desc': '소리, 햅틱, 동의, 언어 및 기록 로그를 초기화합니다.',
+      'clear_data_confirm': '모든 로컬 설정과 로그가 삭제됩니다. 계속할까요?',
+      'clear_data_complete': '모든 로컬 데이터가 초기화되었습니다.',
+      'confirm': '확인',
+
+      // 주간 차트 다국어
+      'chart_6d': '6일전',
+      'chart_5d': '5일전',
+      'chart_4d': '4일전',
+      'chart_3d': '3일전',
+      'chart_2d': '2일전',
+      'chart_yesterday': '어제',
+      'chart_today': '오늘',
+
+      // 평가 버튼 인터벌 미리보기
+      'interval_day': '@{n}일',
     },
   };
 }

@@ -25,7 +25,6 @@ class StatsController extends GetxController {
 
   // Today stats
   final RxInt todayStudied = 0.obs;
-  final RxDouble todayAccuracy = 0.0.obs;
 
   // Streak
   final RxInt currentStreak = 0.obs;
@@ -111,8 +110,12 @@ class StatsController extends GetxController {
 
     for (final deck in decks) {
       final cards = dc.getCards(deck.id);
-      final mastered = cards.where((c) => c.isMastered).length;
-      final due = cards.where((c) => c.isDue).length;
+      int mastered = 0;
+      int due = 0;
+      for (final c in cards) {
+        if (c.isMastered) mastered++;
+        if (c.isDue) due++;
+      }
       final progress = cards.isEmpty ? 0.0 : mastered / cards.length;
       totalC += cards.length;
       masteredC += mastered;
@@ -132,38 +135,40 @@ class StatsController extends GetxController {
   }
 
   void _computeWeeklyData() {
-    final today = _dateOnly(DateTime.now());
+    // Use actual recorded daily study counts when available,
+    // falling back to the card-state estimate for historical data.
+    final stored = HiveService.to.getDailyStudyCounts(7);
+    final hasStoredData = stored.any((c) => c > 0);
 
-    // Count cards reviewed per day using nextReview dates.
-    // Cards that were reviewed on day D have nextReview set to D+interval.
-    // We approximate: if card's nextReview - interval = D, it was reviewed on D.
-    final dc = Get.find<DeckController>();
-    final Map<DateTime, int> reviewedPerDay = {};
+    if (hasStoredData) {
+      weeklyData.assignAll(stored);
+      todayStudied.value = stored.last;
+    } else {
+      // Fallback: estimate from card state (legacy data before tracking)
+      final today = _dateOnly(DateTime.now());
+      final dc = Get.find<DeckController>();
+      final Map<DateTime, int> reviewedPerDay = {};
 
-    for (final deck in dc.decks) {
-      for (final card in dc.getCards(deck.id)) {
-        // Include any card that has been reviewed at least once (nextReview set),
-        // regardless of repetition count (covers "Hard" on first review where
-        // repetitions stays 0 but the card was still studied).
-        if (card.nextReview != null) {
-          final reviewedOn = _dateOnly(
-            card.nextReview!.subtract(Duration(days: card.interval)),
-          );
-          reviewedPerDay[reviewedOn] = (reviewedPerDay[reviewedOn] ?? 0) + 1;
+      for (final deck in dc.decks) {
+        for (final card in dc.getCards(deck.id)) {
+          if (card.nextReview != null) {
+            final reviewedOn = _dateOnly(
+              card.nextReview!.subtract(Duration(days: card.interval)),
+            );
+            reviewedPerDay[reviewedOn] =
+                (reviewedPerDay[reviewedOn] ?? 0) + 1;
+          }
         }
       }
-    }
 
-    // Fill last 7 days
-    final weekly = <int>[];
-    for (int i = 6; i >= 0; i--) {
-      final day = today.subtract(Duration(days: i));
-      weekly.add(reviewedPerDay[day] ?? 0);
+      final weekly = <int>[];
+      for (int i = 6; i >= 0; i--) {
+        final day = today.subtract(Duration(days: i));
+        weekly.add(reviewedPerDay[day] ?? 0);
+      }
+      weeklyData.assignAll(weekly);
+      todayStudied.value = reviewedPerDay[today] ?? 0;
     }
-    weeklyData.assignAll(weekly);
-
-    // Today's studied count
-    todayStudied.value = reviewedPerDay[today] ?? 0;
   }
 
   DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);

@@ -91,7 +91,7 @@ class _DeckPageState extends State<_DeckPageContent> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('?뱷', style: TextStyle(fontSize: 48.sp)),
+                        Text('📝', style: TextStyle(fontSize: 48.sp)),
                         SizedBox(height: 12.h),
                         Text(
                           'no_cards'.tr,

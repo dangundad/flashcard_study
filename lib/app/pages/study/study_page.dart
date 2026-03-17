@@ -68,18 +68,39 @@ class StudyPage extends GetView<StudyController> {
                   _ProgressBar(controller: controller, cs: cs),
                   SizedBox(height: 20.h),
                   Expanded(
-                    child: FlipCardWidget(
-                      front: card.front,
-                      back: card.back,
-                      isFlipped: controller.isFlipped.value,
-                      onTap: controller.flip,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0.05, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: FlipCardWidget(
+                        key: ValueKey(card.id),
+                        front: card.front,
+                        back: card.back,
+                        isFlipped: controller.isFlipped.value,
+                        onTap: controller.flip,
+                      ),
                     ),
                   ),
                   SizedBox(height: 16.h),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: controller.isFlipped.value
-                        ? _RatingButtons(onRate: controller.rateCard)
+                        ? _RatingButtons(
+                            onRate: controller.rateCard,
+                            intervals: card.previewIntervals(),
+                          )
                         : _FlipPrompt(),
                   ),
                   SizedBox(height: 20.h),
@@ -156,7 +177,7 @@ class _FlipPrompt extends StatelessWidget {
     final cs = Get.theme.colorScheme;
     return Container(
       key: const ValueKey('prompt'),
-      height: 112.h,
+      height: 118.h,
       alignment: Alignment.center,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -175,14 +196,19 @@ class _FlipPrompt extends StatelessWidget {
 
 class _RatingButtons extends StatelessWidget {
   final void Function(int quality) onRate;
+  final Map<int, int> intervals;
 
-  const _RatingButtons({required this.onRate});
+  const _RatingButtons({required this.onRate, required this.intervals});
+
+  String _intervalLabel(int days) {
+    return 'interval_day'.trParams({'n': '$days'});
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       key: const ValueKey('ratings'),
-      height: 112.h,
+      height: 118.h,
       child: Column(
         children: [
           Text(
@@ -197,24 +223,28 @@ class _RatingButtons extends StatelessWidget {
             children: [
               _RateBtn(
                 label: 'rate_again'.tr,
+                subtitle: _intervalLabel(intervals[0] ?? 1),
                 color: const Color(0xFFC62828),
                 onTap: () => onRate(0),
               ),
               SizedBox(width: 6.w),
               _RateBtn(
                 label: 'rate_hard'.tr,
+                subtitle: _intervalLabel(intervals[1] ?? 1),
                 color: const Color(0xFFE65100),
                 onTap: () => onRate(1),
               ),
               SizedBox(width: 6.w),
               _RateBtn(
                 label: 'rate_good'.tr,
+                subtitle: _intervalLabel(intervals[2] ?? 1),
                 color: const Color(0xFF1565C0),
                 onTap: () => onRate(2),
               ),
               SizedBox(width: 6.w),
               _RateBtn(
                 label: 'rate_easy'.tr,
+                subtitle: _intervalLabel(intervals[3] ?? 4),
                 color: const Color(0xFF2E7D32),
                 onTap: () => onRate(3),
               ),
@@ -228,10 +258,16 @@ class _RatingButtons extends StatelessWidget {
 
 class _RateBtn extends StatelessWidget {
   final String label;
+  final String subtitle;
   final Color color;
   final VoidCallback onTap;
 
-  const _RateBtn({required this.label, required this.color, required this.onTap});
+  const _RateBtn({
+    required this.label,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -239,21 +275,36 @@ class _RateBtn extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 52.h,
+          height: 56.h,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10.r),
             border: Border.all(color: color, width: 1.5),
           ),
           alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-            textAlign: TextAlign.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 9.sp,
+                  fontWeight: FontWeight.w500,
+                  color: color.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ),

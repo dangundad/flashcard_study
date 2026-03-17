@@ -122,6 +122,46 @@ class HiveService extends GetxService {
       ..sort();
   }
 
+  // ============================================
+  // 일별 학습 카드 수 기록
+  // ============================================
+  static const String _dailyCountKey = 'daily_study_counts';
+
+  Map<String, int> _parseDailyCounts() {
+    final raw = appDataBox.get(_dailyCountKey);
+    return raw is Map
+        ? Map<String, int>.from(
+            raw.map((k, v) => MapEntry(k.toString(), v as int)))
+        : <String, int>{};
+  }
+
+  /// 오늘 학습한 카드 수를 누적 기록
+  Future<void> addDailyStudyCount(int count) async {
+    final today = _dateOnly(DateTime.now()).toIso8601String();
+    final counts = _parseDailyCounts();
+    counts[today] = (counts[today] ?? 0) + count;
+    // Keep only last 90 days
+    if (counts.length > 90) {
+      final sorted = counts.keys.toList()..sort();
+      for (final key in sorted.take(counts.length - 90)) {
+        counts.remove(key);
+      }
+    }
+    await appDataBox.put(_dailyCountKey, counts);
+  }
+
+  /// 최근 N일간 일별 학습 카드 수 반환 (index 0 = N-1일 전, 마지막 = 오늘)
+  List<int> getDailyStudyCounts(int days) {
+    final today = _dateOnly(DateTime.now());
+    final counts = _parseDailyCounts();
+    final result = <int>[];
+    for (int i = days - 1; i >= 0; i--) {
+      final day = today.subtract(Duration(days: i)).toIso8601String();
+      result.add(counts[day] ?? 0);
+    }
+    return result;
+  }
+
   DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
   // ============================================

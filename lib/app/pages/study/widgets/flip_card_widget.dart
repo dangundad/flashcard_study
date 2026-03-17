@@ -67,6 +67,11 @@ class _FlipCardWidgetState extends State<FlipCardWidget>
 
     return GestureDetector(
       onTap: widget.onTap,
+      onHorizontalDragEnd: (details) {
+        if ((details.primaryVelocity ?? 0).abs() > 200) {
+          widget.onTap();
+        }
+      },
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, _) {

@@ -52,6 +52,35 @@ class FlashCard extends HiveObject {
   /// Card is "mastered" if interval >= 21 days and enough repetitions
   bool get isMastered => interval >= 21 && repetitions >= 3;
 
+  /// Preview the interval (in days) for each quality without mutating state.
+  /// Returns {0: days, 1: days, 2: days, 3: days}.
+  Map<int, int> previewIntervals() {
+    final result = <int, int>{};
+    for (int q = 0; q <= 3; q++) {
+      result[q] = _calcInterval(q);
+    }
+    return result;
+  }
+
+  int _calcInterval(int quality) {
+    if (quality == 0) return 1;
+    if (quality == 1) {
+      if (repetitions > 0) {
+        return (interval * 1.2).round().clamp(1, 365);
+      }
+      return 1;
+    }
+    if (quality == 2) {
+      if (repetitions == 0) return 1;
+      if (repetitions == 1) return 6;
+      return (interval * easeFactor).round().clamp(1, 365);
+    }
+    // quality == 3 (Easy) — use current easeFactor (applyReview adds 0.15 after)
+    if (repetitions == 0) return 4;
+    if (repetitions == 1) return 10;
+    return (interval * easeFactor + 2).round().clamp(1, 365);
+  }
+
   /// Apply SM-2 algorithm: quality 0=Again, 1=Hard, 2=Good, 3=Easy
   ///
   /// Repetition steps (SM-2 inspired):
