@@ -14,20 +14,10 @@ class StatsPage extends GetView<StatsController> {
     final cs = Get.theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: cs.surface,
       body: SafeArea(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cs.surface,
-                cs.surfaceContainerLowest.withValues(alpha: 0.94),
-                cs.surfaceContainerLow.withValues(alpha: 0.9),
-              ],
-            ),
-          ),
+        child: ColoredBox(
+          color: cs.surface,
           child: Column(
             children: [
               Padding(
@@ -47,11 +37,7 @@ class StatsPage extends GetView<StatsController> {
                     IconButton(
                       onPressed: () => controller.refreshStats(),
                       tooltip: 'refresh'.tr,
-                      icon: Icon(
-                        Icons.refresh,
-                        size: 20.r,
-                        color: cs.primary,
-                      ),
+                      icon: Icon(Icons.refresh, size: 20.r, color: cs.primary),
                     ),
                   ],
                 ),
@@ -62,8 +48,7 @@ class StatsPage extends GetView<StatsController> {
                   color: cs.primary,
                   child: Obx(
                     () => ListView(
-                      padding:
-                          EdgeInsets.fromLTRB(18.w, 4.h, 18.w, 24.h),
+                      padding: EdgeInsets.fromLTRB(18.w, 4.h, 18.w, 24.h),
                       children: [
                         // ── Today Stats ──────────────────────────
                         _SectionTitle(cs: cs, title: 'stats_today'.tr),
@@ -91,8 +76,7 @@ class StatsPage extends GetView<StatsController> {
 
                         // ── Deck Proficiency ─────────────────────
                         if (controller.deckStats.isNotEmpty) ...[
-                          _SectionTitle(
-                              cs: cs, title: 'stats_deck_mastery'.tr),
+                          _SectionTitle(cs: cs, title: 'stats_deck_mastery'.tr),
                           SizedBox(height: 8.h),
                           _DeckMasteryList(cs: cs, controller: controller),
                         ],
@@ -294,14 +278,14 @@ class _WeeklyChart extends StatelessWidget {
   const _WeeklyChart({required this.cs, required this.controller});
 
   static List<String> get _days => [
-        'chart_6d'.tr,
-        'chart_5d'.tr,
-        'chart_4d'.tr,
-        'chart_3d'.tr,
-        'chart_2d'.tr,
-        'chart_yesterday'.tr,
-        'chart_today'.tr,
-      ];
+    'chart_6d'.tr,
+    'chart_5d'.tr,
+    'chart_4d'.tr,
+    'chart_3d'.tr,
+    'chart_2d'.tr,
+    'chart_yesterday'.tr,
+    'chart_today'.tr,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -354,9 +338,7 @@ class _WeeklyChart extends StatelessWidget {
                       days[idx],
                       style: TextStyle(
                         fontSize: 9.sp,
-                        color: isToday
-                            ? cs.primary
-                            : cs.onSurfaceVariant,
+                        color: isToday ? cs.primary : cs.onSurfaceVariant,
                         fontWeight: isToday
                             ? FontWeight.w700
                             : FontWeight.normal,
@@ -413,8 +395,7 @@ class _DeckMasteryList extends StatelessWidget {
           return Column(
             children: [
               Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 child: Row(
                   children: [
                     Expanded(
@@ -445,14 +426,13 @@ class _DeckMasteryList extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: stat.progress,
                               minHeight: 6.h,
-                              backgroundColor:
-                                  cs.surfaceContainerHighest,
+                              backgroundColor: cs.surfaceContainerHighest,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 stat.progress >= 0.8
                                     ? Colors.green
                                     : stat.progress >= 0.5
-                                        ? cs.primary
-                                        : cs.secondary,
+                                    ? cs.primary
+                                    : cs.secondary,
                               ),
                             ),
                           ),
@@ -472,10 +452,7 @@ class _DeckMasteryList extends StatelessWidget {
                 ),
               ),
               if (!isLast)
-                Divider(
-                  height: 1,
-                  color: cs.outline.withValues(alpha: 0.15),
-                ),
+                Divider(height: 1, color: cs.outline.withValues(alpha: 0.15)),
             ],
           );
         }).toList(),
@@ -520,10 +497,7 @@ class _StatItem extends StatelessWidget {
         SizedBox(height: 2.h),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10.sp,
-            color: cs.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 10.sp, color: cs.onSurfaceVariant),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -534,14 +508,14 @@ class _StatItem extends StatelessWidget {
 }
 
 BoxDecoration _cardDecoration(ColorScheme cs) => BoxDecoration(
-      color: cs.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(16.r),
-      border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
-      boxShadow: [
-        BoxShadow(
-          color: cs.shadow.withValues(alpha: 0.06),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    );
+  color: cs.surfaceContainerLowest,
+  borderRadius: BorderRadius.circular(16.r),
+  border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
+  boxShadow: [
+    BoxShadow(
+      color: cs.shadow.withValues(alpha: 0.06),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ],
+);

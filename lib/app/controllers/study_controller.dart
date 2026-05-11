@@ -21,6 +21,7 @@ class StudyController extends GetxController {
   final showConfetti = false.obs;
 
   String _deckId = '';
+  bool _isCompletingSession = false;
 
   @override
   void onInit() {
@@ -38,6 +39,7 @@ class StudyController extends GetxController {
     sessionCorrect.value = 0;
     sessionTotal.value = 0;
     showConfetti.value = false;
+    _isCompletingSession = false;
 
     // If no cards are due, mark session as done immediately so the UI
     // shows the completion screen instead of a blank/stuck state.
@@ -52,12 +54,15 @@ class StudyController extends GetxController {
   int get remaining => cards.length - currentIndex.value;
 
   void flip() {
-    if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 30);
+    if (SettingController.to.hapticEnabled.value && _hasVibrator) {
+      Vibration.vibrate(duration: 30);
+    }
     isFlipped.value = !isFlipped.value;
   }
 
   /// quality: 0=Again, 1=Hard, 2=Good, 3=Easy
-  void rateCard(int quality) {
+  Future<void> rateCard(int quality) async {
+    if (_isCompletingSession) return;
     final card = currentCard;
     if (card == null) return;
 
@@ -71,7 +76,9 @@ class StudyController extends GetxController {
 
     card.applyReview(quality);
     sessionTotal.value++;
-    if (quality >= 2) sessionCorrect.value++;
+    if (quality >= 2) {
+      sessionCorrect.value++;
+    }
 
     // "Again" cards should be retried within the current session.
     // Re-insert the card near the end of the queue so the user sees it
@@ -83,7 +90,10 @@ class StudyController extends GetxController {
       final removed = updated.removeAt(currentIndex.value);
       // Place it 3-5 cards later (or at the end if fewer remain).
       final reinsertOffset = (updated.length - currentIndex.value).clamp(0, 4);
-      final reinsertIndex = (currentIndex.value + reinsertOffset).clamp(0, updated.length);
+      final reinsertIndex = (currentIndex.value + reinsertOffset).clamp(
+        0,
+        updated.length,
+      );
       updated.insert(reinsertIndex, removed);
       cards.value = updated;
       // currentIndex stays the same -> next card is already at this index.
@@ -95,12 +105,20 @@ class StudyController extends GetxController {
 
     final next = currentIndex.value + 1;
     if (next >= cards.length) {
-      if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 100);
+      _isCompletingSession = true;
+      if (SettingController.to.hapticEnabled.value && _hasVibrator) {
+        Vibration.vibrate(duration: 100);
+      }
+      await Future.wait([
+        HiveService.to.recordStudySession(),
+        HiveService.to.addDailyStudyCount(sessionTotal.value),
+      ]);
       isDone.value = true;
       showConfetti.value = true;
-      HiveService.to.recordStudySession();
-      HiveService.to.addDailyStudyCount(sessionTotal.value);
-      InterstitialAdManager.to.showAdIfAvailable();
+      _isCompletingSession = false;
+      if (Get.isRegistered<InterstitialAdManager>()) {
+        InterstitialAdManager.to.showAdIfAvailable();
+      }
     } else {
       currentIndex.value = next;
     }
@@ -120,6 +138,7 @@ class StudyController extends GetxController {
       isFlipped.value = false;
       sessionCorrect.value = 0;
       sessionTotal.value = 0;
+      _isCompletingSession = false;
       isDone.value = all.isEmpty;
       showConfetti.value = false;
     } else {

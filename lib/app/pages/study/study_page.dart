@@ -17,16 +17,14 @@ class StudyPage extends GetView<StudyController> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Obx(
-          () {
-            if (controller.isDone.value || controller.cards.isEmpty) {
-              return Text('session_done'.tr);
-            }
-            return Text(
-              '${'studying'.tr} ${controller.currentIndex.value + 1}/${controller.cards.length}',
-            );
-          },
-        ),
+        title: Obx(() {
+          if (controller.isDone.value || controller.cards.isEmpty) {
+            return Text('session_done'.tr);
+          }
+          return Text(
+            '${'studying'.tr} ${controller.currentIndex.value + 1}/${controller.cards.length}',
+          );
+        }),
         centerTitle: true,
       ),
       body: Obx(() {
@@ -52,14 +50,8 @@ class StudyPage extends GetView<StudyController> {
         if (card == null) return const SizedBox.shrink();
 
         return SafeArea(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [cs.surface, cs.primary.withValues(alpha: 0.05), cs.surface],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
+          child: ColoredBox(
+            color: cs.surface,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Column(
@@ -140,10 +132,7 @@ class _ProgressBar extends StatelessWidget {
             children: [
               Text(
                 '${controller.remaining} ${'cards_left'.tr}',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: cs.onSurfaceVariant,
-                ),
+                style: TextStyle(fontSize: 12.sp, color: cs.onSurfaceVariant),
               ),
               Text(
                 '${(progress * 100).round()}%',
@@ -330,79 +319,93 @@ class _SessionComplete extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              pct >= 80 ? '🎉' : '💪',
-              style: TextStyle(fontSize: 64.sp),
-            )
+            Text(pct >= 80 ? '🎉' : '💪', style: TextStyle(fontSize: 64.sp))
                 .animate()
                 .fadeIn(duration: 400.ms)
                 .slideY(begin: 0.3, duration: 400.ms, curve: Curves.easeOut),
             SizedBox(height: 12.h),
             Text(
-              'session_done'.tr,
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w800,
-                color: cs.primary,
-              ),
-            )
+                  'session_done'.tr,
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w800,
+                    color: cs.primary,
+                  ),
+                )
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 80.ms)
-                .slideY(begin: 0.3, duration: 400.ms, delay: 80.ms, curve: Curves.easeOut),
+                .slideY(
+                  begin: 0.3,
+                  duration: 400.ms,
+                  delay: 80.ms,
+                  curve: Curves.easeOut,
+                ),
             SizedBox(height: 24.h),
             Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20.r),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
-              ),
-              child: Column(
-                children: [
-                  _Row(
-                    label: 'result_correct'.tr,
-                    value: '$correct / $total',
-                    color: cs.primary,
-                    bold: true,
+                  width: double.infinity,
+                  padding: EdgeInsets.all(20.r),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(
+                      color: cs.outline.withValues(alpha: 0.25),
+                    ),
                   ),
-                  SizedBox(height: 8.h),
-                  _Row(
-                    label: 'result_accuracy'.tr,
-                    value: '${pct.round()}%',
-                    color: pct >= 80
-                        ? const Color(0xFF2E7D32)
-                        : pct >= 60
+                  child: Column(
+                    children: [
+                      _Row(
+                        label: 'result_correct'.tr,
+                        value: '$correct / $total',
+                        color: cs.primary,
+                        bold: true,
+                      ),
+                      SizedBox(height: 8.h),
+                      _Row(
+                        label: 'result_accuracy'.tr,
+                        value: '${pct.round()}%',
+                        color: pct >= 80
+                            ? const Color(0xFF2E7D32)
+                            : pct >= 60
                             ? Colors.orange
                             : cs.error,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )
+                )
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 160.ms)
-                .slideY(begin: 0.3, duration: 400.ms, delay: 160.ms, curve: Curves.easeOut),
+                .slideY(
+                  begin: 0.3,
+                  duration: 400.ms,
+                  delay: 160.ms,
+                  curve: Curves.easeOut,
+                ),
             SizedBox(height: 28.h),
             Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Get.back(),
-                    child: Text('back_to_deck'.tr),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: controller.restartSession,
-                    child: Text('study_again'.tr),
-                  ),
-                ),
-              ],
-            )
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Get.back(),
+                        child: Text('back_to_deck'.tr),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: controller.restartSession,
+                        child: Text('study_again'.tr),
+                      ),
+                    ),
+                  ],
+                )
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 240.ms)
-                .slideY(begin: 0.3, duration: 400.ms, delay: 240.ms, curve: Curves.easeOut),
+                .slideY(
+                  begin: 0.3,
+                  duration: 400.ms,
+                  delay: 240.ms,
+                  curve: Curves.easeOut,
+                ),
           ],
         ),
       ),
@@ -429,7 +432,10 @@ class _Row extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(fontSize: 13.sp, color: cs.onSurfaceVariant)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 13.sp, color: cs.onSurfaceVariant),
+        ),
         Text(
           value,
           style: TextStyle(

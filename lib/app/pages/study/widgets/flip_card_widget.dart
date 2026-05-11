@@ -34,9 +34,10 @@ class _FlipCardWidgetState extends State<FlipCardWidget>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -129,14 +130,7 @@ class _CardFace extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color,
-            Color.lerp(color, Colors.black, 0.08) ?? color,
-          ],
-        ),
+        color: color,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: textColor.withValues(alpha: 0.14),

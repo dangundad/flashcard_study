@@ -23,10 +23,7 @@ class HomePage extends GetView<DeckController> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text(
-              '📚',
-              style: TextStyle(fontSize: 22.sp),
-            ),
+            Text('📚', style: TextStyle(fontSize: 22.sp)),
             SizedBox(width: 8.w),
             Text(
               'app_name'.tr,
@@ -40,12 +37,20 @@ class HomePage extends GetView<DeckController> {
         ),
         actions: [
           IconButton(
-            icon: Icon(LucideIcons.chartBar, size: 20.r, color: cs.onSurfaceVariant),
+            icon: Icon(
+              LucideIcons.chartBar,
+              size: 20.r,
+              color: cs.onSurfaceVariant,
+            ),
             tooltip: 'stats'.tr,
             onPressed: () => Get.toNamed(Routes.STATS),
           ),
           IconButton(
-            icon: Icon(LucideIcons.settings, size: 20.r, color: cs.onSurfaceVariant),
+            icon: Icon(
+              LucideIcons.settings,
+              size: 20.r,
+              color: cs.onSurfaceVariant,
+            ),
             tooltip: 'settings'.tr,
             onPressed: () => Get.toNamed(Routes.SETTINGS),
           ),
@@ -56,28 +61,14 @@ class HomePage extends GetView<DeckController> {
         backgroundColor: cs.surface,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(3),
-          child: Container(
-            height: 3,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [cs.primary, cs.tertiary],
-              ),
-            ),
+          child: ColoredBox(
+            color: cs.primary,
+            child: const SizedBox(height: 3),
           ),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              cs.primary.withValues(alpha: 0.08),
-              cs.surface,
-              cs.secondaryContainer.withValues(alpha: 0.12),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+      body: ColoredBox(
+        color: cs.surface,
         child: SafeArea(
           top: false,
           child: Column(
@@ -160,10 +151,7 @@ class HomePage extends GetView<DeckController> {
     );
   }
 
-  void _showCreateDeckDialog(
-    BuildContext context, {
-    FlashDeck? editing,
-  }) {
+  void _showCreateDeckDialog(BuildContext context, {FlashDeck? editing}) {
     final titleCtrl = TextEditingController(text: editing?.title ?? '');
     final descCtrl = TextEditingController(text: editing?.description ?? '');
 
@@ -226,57 +214,51 @@ class _TodaySummaryCard extends StatelessWidget {
     final totalDecks = controller.decks.length;
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            cs.primaryContainer,
-            cs.secondaryContainer.withValues(alpha: 0.7),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: cs.primary.withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+          decoration: BoxDecoration(
+            color: cs.primaryContainer,
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
+            boxShadow: [
+              BoxShadow(
+                color: cs.primary.withValues(alpha: 0.12),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
-      child: Row(
-        children: [
-          Expanded(
-            child: _SummaryItem(
-              icon: LucideIcons.layers,
-              value: '$totalDecks',
-              label: 'stats_total_decks'.tr,
-              cs: cs,
-            ),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+          child: Row(
+            children: [
+              Expanded(
+                child: _SummaryItem(
+                  icon: LucideIcons.layers,
+                  value: '$totalDecks',
+                  label: 'stats_total_decks'.tr,
+                  cs: cs,
+                ),
+              ),
+              _VerticalDivider(cs: cs),
+              Expanded(
+                child: _SummaryItem(
+                  icon: LucideIcons.creditCard,
+                  value: '$totalCards',
+                  label: 'total_cards'.tr,
+                  cs: cs,
+                ),
+              ),
+              _VerticalDivider(cs: cs),
+              Expanded(
+                child: _SummaryItem(
+                  icon: LucideIcons.refreshCcw,
+                  value: '$totalDue',
+                  label: 'due_today'.tr,
+                  cs: cs,
+                  highlight: totalDue > 0,
+                ),
+              ),
+            ],
           ),
-          _VerticalDivider(cs: cs),
-          Expanded(
-            child: _SummaryItem(
-              icon: LucideIcons.creditCard,
-              value: '$totalCards',
-              label: 'total_cards'.tr,
-              cs: cs,
-            ),
-          ),
-          _VerticalDivider(cs: cs),
-          Expanded(
-            child: _SummaryItem(
-              icon: LucideIcons.refreshCcw,
-              value: '$totalDue',
-              label: 'due_today'.tr,
-              cs: cs,
-              highlight: totalDue > 0,
-            ),
-          ),
-        ],
-      ),
-    )
+        )
         .animate()
         .fadeIn(duration: 400.ms)
         .slideY(begin: -0.05, curve: Curves.easeOut);
@@ -304,7 +286,11 @@ class _SummaryItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 20.r, color: cs.onPrimaryContainer.withValues(alpha: 0.75)),
+        Icon(
+          icon,
+          size: 20.r,
+          color: cs.onPrimaryContainer.withValues(alpha: 0.75),
+        ),
         SizedBox(height: 6.h),
         Text(
           value,
@@ -361,7 +347,8 @@ class _EmptyState extends StatelessWidget {
               tween: Tween(begin: 0, end: 1),
               duration: const Duration(milliseconds: 650),
               curve: Curves.elasticOut,
-              builder: (ctx, v, child) => Transform.scale(scale: v, child: child),
+              builder: (ctx, v, child) =>
+                  Transform.scale(scale: v, child: child),
               child: Text('🧠', style: TextStyle(fontSize: 64.sp)),
             ),
             SizedBox(height: 16.h),
@@ -406,11 +393,7 @@ class _GradientButton extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [cs.primary, cs.tertiary],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: cs.primary,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
@@ -471,171 +454,168 @@ class _DeckCard extends StatelessWidget {
     final progressColor = progress >= 0.8
         ? const Color(0xFF2E7D32)
         : progress >= 0.4
-            ? Colors.orange
-            : cs.error;
+        ? Colors.orange
+        : cs.error;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(20.r),
-          boxShadow: [
-            BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+          padding: EdgeInsets.only(bottom: 12.h),
+          child: Container(
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: cs.shadow.withValues(alpha: 0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.5),
+              ),
             ),
-          ],
-          border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.5),
-          ),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(20.r),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20.r),
-            onTap: () => Get.toNamed(Routes.DECK, arguments: deck.id),
-            child: Padding(
-              padding: EdgeInsets.all(16.r),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(20.r),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20.r),
+                onTap: () => Get.toNamed(Routes.DECK, arguments: deck.id),
+                child: Padding(
+                  padding: EdgeInsets.all(16.r),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 40.r,
-                        height: 40.r,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              cs.primary.withValues(alpha: 0.15),
-                              cs.tertiary.withValues(alpha: 0.1),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Icon(
-                          LucideIcons.bookOpen,
-                          size: 20.r,
-                          color: cs.primary,
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              deck.title,
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: cs.onSurface,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Container(
+                            width: 40.r,
+                            height: 40.r,
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer,
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
-                            if (deck.description.isNotEmpty) ...[
-                              SizedBox(height: 2.h),
-                              Text(
-                                deck.description,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: cs.onSurfaceVariant,
+                            child: Icon(
+                              LucideIcons.bookOpen,
+                              size: 20.r,
+                              color: cs.primary,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  deck.title,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: cs.onSurface,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          LucideIcons.ellipsis,
-                          color: cs.onSurfaceVariant,
-                          size: 20.r,
-                        ),
-                        onSelected: (v) {
-                          if (v == 'edit') {
-                            _editDeck(context, deck);
-                          } else if (v == 'delete') {
-                            _deleteDeck(deck);
-                          }
-                        },
-                        itemBuilder: (_) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: ListTile(
-                              leading: Icon(LucideIcons.pencil, size: 18.r),
-                              title: Text('edit'.tr),
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
+                                if (deck.description.isNotEmpty) ...[
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    deck.description,
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: ListTile(
-                              leading: Icon(
-                                LucideIcons.trash2,
-                                color: cs.error,
-                                size: 18.r,
+                          PopupMenuButton<String>(
+                            icon: Icon(
+                              LucideIcons.ellipsis,
+                              color: cs.onSurfaceVariant,
+                              size: 20.r,
+                            ),
+                            onSelected: (v) {
+                              if (v == 'edit') {
+                                _editDeck(context, deck);
+                              } else if (v == 'delete') {
+                                _deleteDeck(deck);
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: ListTile(
+                                  leading: Icon(LucideIcons.pencil, size: 18.r),
+                                  title: Text('edit'.tr),
+                                  contentPadding: EdgeInsets.zero,
+                                  dense: true,
+                                ),
                               ),
-                              title: Text(
-                                'delete'.tr,
-                                style: TextStyle(color: cs.error),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: ListTile(
+                                  leading: Icon(
+                                    LucideIcons.trash2,
+                                    color: cs.error,
+                                    size: 18.r,
+                                  ),
+                                  title: Text(
+                                    'delete'.tr,
+                                    style: TextStyle(color: cs.error),
+                                  ),
+                                  contentPadding: EdgeInsets.zero,
+                                  dense: true,
+                                ),
                               ),
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 14.h),
+                      Row(
+                        children: [
+                          _Badge(
+                            label: '$total ${'cards'.tr}',
+                            color: cs.onSurfaceVariant,
+                          ),
+                          SizedBox(width: 8.w),
+                          if (due > 0)
+                            _Badge(
+                              label: '$due ${'due'.tr}',
+                              color: cs.primary,
+                              filled: true,
+                            ),
+                          const Spacer(),
+                          Text(
+                            '${(progress * 100).round()}%',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                              color: progressColor,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 14.h),
-                  Row(
-                    children: [
-                      _Badge(
-                        label: '$total ${'cards'.tr}',
-                        color: cs.onSurfaceVariant,
-                      ),
-                      SizedBox(width: 8.w),
-                      if (due > 0)
-                        _Badge(
-                          label: '$due ${'due'.tr}',
-                          color: cs.primary,
-                          filled: true,
-                        ),
-                      const Spacer(),
-                      Text(
-                        '${(progress * 100).round()}%',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: progressColor,
+                      SizedBox(height: 10.h),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6.r),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6.h,
+                          backgroundColor: cs.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            progressColor,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10.h),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6.r),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 6.h,
-                      backgroundColor: cs.surfaceContainerHighest,
-                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    )
+        )
         .animate(delay: (index * 50).ms)
         .fadeIn()
         .slideX(begin: -0.1, curve: Curves.easeOut);
@@ -679,7 +659,9 @@ class _DeckCard extends StatelessWidget {
     final cs = Get.theme.colorScheme;
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -687,11 +669,7 @@ class _DeckCard extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 20.h),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [cs.errorContainer, cs.error.withValues(alpha: 0.3)],
-                ),
-              ),
+              decoration: BoxDecoration(color: cs.errorContainer),
               child: Center(
                 child: Container(
                   width: 52.r,
@@ -710,12 +688,18 @@ class _DeckCard extends StatelessWidget {
                 children: [
                   Text(
                     'delete_deck'.tr,
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   SizedBox(height: 8.h),
                   Text(
                     'delete_deck_confirm'.trParams({'title': deck.title}),
-                    style: TextStyle(fontSize: 14.sp, color: cs.onSurfaceVariant),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: cs.onSurfaceVariant,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -735,9 +719,7 @@ class _DeckCard extends StatelessWidget {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [cs.error, cs.errorContainer],
-                        ),
+                        color: cs.error,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Material(
@@ -809,11 +791,7 @@ class _DeckDialog extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 20.h),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [cs.primaryContainer, cs.primary.withValues(alpha: 0.3)],
-              ),
-            ),
+            decoration: BoxDecoration(color: cs.primaryContainer),
             child: Center(
               child: Container(
                 width: 52.r,
@@ -822,7 +800,11 @@ class _DeckDialog extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: cs.primary.withValues(alpha: 0.15),
                 ),
-                child: Icon(LucideIcons.bookOpen, size: 26.r, color: cs.primary),
+                child: Icon(
+                  LucideIcons.bookOpen,
+                  size: 26.r,
+                  color: cs.primary,
+                ),
               ),
             ),
           ),
@@ -831,7 +813,13 @@ class _DeckDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 SizedBox(height: 16.h),
                 TextField(
                   controller: titleController,
@@ -870,7 +858,7 @@ class _DeckDialog extends StatelessWidget {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [cs.primary, cs.tertiary]),
+                      color: cs.primary,
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Material(
@@ -977,10 +965,7 @@ class _TemplateCard extends StatelessWidget {
   final DeckTemplate template;
   final DeckController controller;
 
-  const _TemplateCard({
-    required this.template,
-    required this.controller,
-  });
+  const _TemplateCard({required this.template, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -995,9 +980,7 @@ class _TemplateCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.45),
-          ),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
           boxShadow: [
             BoxShadow(
               color: cs.shadow.withValues(alpha: 0.06),
@@ -1014,12 +997,7 @@ class _TemplateCard extends StatelessWidget {
                 width: 42.r,
                 height: 42.r,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      cs.tertiary.withValues(alpha: 0.2),
-                      cs.secondary.withValues(alpha: 0.15),
-                    ],
-                  ),
+                  color: cs.tertiaryContainer,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(

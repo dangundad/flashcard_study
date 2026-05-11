@@ -64,24 +64,14 @@ class _DeckPageState extends State<_DeckPageContent> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(3),
-          child: Container(
-            height: 3,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [cs.primary, cs.tertiary],
-              ),
-            ),
+          child: ColoredBox(
+            color: cs.primary,
+            child: const SizedBox(height: 3),
           ),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [cs.surface, cs.primary.withValues(alpha: 0.06), cs.surface],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: ColoredBox(
+        color: cs.surface,
         child: Column(
           children: [
             Expanded(
@@ -125,9 +115,14 @@ class _DeckPageState extends State<_DeckPageContent> {
                       return Padding(
                         padding: EdgeInsets.only(top: 14.h, bottom: 8.h),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 6.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                            color: cs.surfaceContainerHighest.withValues(
+                              alpha: 0.75,
+                            ),
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           child: Text(
@@ -183,7 +178,9 @@ class _DeckPageState extends State<_DeckPageContent> {
 
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -191,11 +188,7 @@ class _DeckPageState extends State<_DeckPageContent> {
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 20.h),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [cs.primaryContainer, cs.primary.withValues(alpha: 0.3)],
-                ),
-              ),
+              decoration: BoxDecoration(color: cs.primaryContainer),
               child: Center(
                 child: Container(
                   width: 52.r,
@@ -204,7 +197,11 @@ class _DeckPageState extends State<_DeckPageContent> {
                     shape: BoxShape.circle,
                     color: cs.primary.withValues(alpha: 0.15),
                   ),
-                  child: Icon(LucideIcons.creditCard, size: 26.r, color: cs.primary),
+                  child: Icon(
+                    LucideIcons.creditCard,
+                    size: 26.r,
+                    color: cs.primary,
+                  ),
                 ),
               ),
             ),
@@ -215,7 +212,10 @@ class _DeckPageState extends State<_DeckPageContent> {
                 children: [
                   Text(
                     editing == null ? 'add_card'.tr : 'edit_card'.tr,
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   SizedBox(height: 16.h),
                   TextField(
@@ -261,7 +261,7 @@ class _DeckPageState extends State<_DeckPageContent> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [cs.primary, cs.tertiary]),
+                        color: cs.primary,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Material(
@@ -279,7 +279,11 @@ class _DeckPageState extends State<_DeckPageContent> {
                                 back: b,
                               );
                             } else {
-                              await widget.controller.updateCard(editing, front: f, back: b);
+                              await widget.controller.updateCard(
+                                editing,
+                                front: f,
+                                back: b,
+                              );
                             }
                             _loadCards();
                             frontCtrl.dispose();
@@ -317,7 +321,9 @@ class _DeckPageState extends State<_DeckPageContent> {
     final cs = Get.theme.colorScheme;
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28.r),
+        ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -325,11 +331,7 @@ class _DeckPageState extends State<_DeckPageContent> {
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 20.h),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [cs.errorContainer, cs.error.withValues(alpha: 0.3)],
-                ),
-              ),
+              decoration: BoxDecoration(color: cs.errorContainer),
               child: Center(
                 child: Container(
                   width: 52.r,
@@ -348,12 +350,18 @@ class _DeckPageState extends State<_DeckPageContent> {
                 children: [
                   Text(
                     'delete_card'.tr,
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   SizedBox(height: 8.h),
                   Text(
                     'delete_card_confirm'.tr,
-                    style: TextStyle(fontSize: 14.sp, color: cs.onSurfaceVariant),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: cs.onSurfaceVariant,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -373,9 +381,7 @@ class _DeckPageState extends State<_DeckPageContent> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [cs.error, cs.errorContainer],
-                        ),
+                        color: cs.error,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Material(
@@ -417,10 +423,7 @@ class _DeckStats extends StatelessWidget {
   final String deckId;
   final DeckController controller;
 
-  const _DeckStats({
-    required this.deckId,
-    required this.controller,
-  });
+  const _DeckStats({required this.deckId, required this.controller});
 
   @override
   Widget build(BuildContext context) {
