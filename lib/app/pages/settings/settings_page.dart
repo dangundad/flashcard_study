@@ -65,28 +65,11 @@ class SettingsPage extends GetView<SettingController> {
                 title: _loc('settings', 'Settings'),
                 children: [
                   _buildSwitchTile(
-                    icon: Icons.volume_up,
-                    title: _loc('sound', 'Sound'),
-                    subtitle: _loc('sound_desc', 'Play sound effects'),
-                    value: controller.soundEnabled.value,
-                    onChanged: controller.setSoundEnabled,
-                  ),
-                  _buildSwitchTile(
                     icon: Icons.vibration,
                     title: _loc('haptic', 'Haptic feedback'),
                     subtitle: _loc('haptic_desc', 'Vibrate for interactions'),
                     value: controller.hapticEnabled.value,
                     onChanged: controller.setHapticEnabled,
-                  ),
-                  _buildSwitchTile(
-                    icon: Icons.privacy_tip,
-                    title: _loc('ads_consent', 'Advertising consent'),
-                    subtitle: _loc(
-                      'ads_consent_desc',
-                      'Use ad personalization preference',
-                    ),
-                    value: controller.adsConsent.value,
-                    onChanged: controller.setAdsConsent,
                   ),
                   _buildSwitchTile(
                     icon: Icons.dark_mode,

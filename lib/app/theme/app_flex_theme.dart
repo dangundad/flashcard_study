@@ -1,11 +1,13 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract final class AppFlexTheme {
   static const FlexScheme _scheme = FlexScheme.purpleBrown;
 
-  static ThemeData get light => FlexColorScheme.light(
+  static ThemeData get light =>
+      FlexColorScheme.light(
         scheme: _scheme,
         useMaterial3: true,
         subThemesData: _sub,
@@ -15,7 +17,8 @@ abstract final class AppFlexTheme {
         pageTransitionsTheme: _transitions,
       );
 
-  static ThemeData get dark => FlexColorScheme.dark(
+  static ThemeData get dark =>
+      FlexColorScheme.dark(
         scheme: _scheme,
         useMaterial3: true,
         subThemesData: _sub,
