@@ -48,11 +48,5 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/fonts/
     - assets/images/
     - assets/data/
-  fonts:
-    - family: NotoSans
-      fonts:
-        - asset: assets/fonts/NotoSans-Bold.ttf
-          weight: 700
